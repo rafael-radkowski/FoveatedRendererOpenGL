@@ -101,9 +101,9 @@ cs557::OBJModel teapot0;
 Material	 	teapot0mat;
 
 
-string object_str[] = {"../../models/sphere.obj", 
-                       "../../models/Cylineder.obj",
-                       "../../models/teapot.obj" };
+string object_str[] = {"../models/sphere.obj", 
+                       "../models/Cylineder.obj",
+                       "../models/teapot.obj" };
 
 std::vector<std::string> object_to_load(object_str, object_str + sizeof(object_str) / sizeof(std::string));
 
@@ -154,7 +154,7 @@ string output_file = "data.csv";
 
 EyeRenderHelpers    gaze_helper;
 EyeData     gaze_data;
-std::string gaze_data_file = "../../data/EyeCoordinates.txt";
+std::string gaze_data_file = "../data/EyeCoordinates.txt";
 
 
 
@@ -253,7 +253,7 @@ void my_key_callback(GLFWwindow* window, int key, int scancode, int action, int 
 void CreateFoveatedRendererBuffer(void)
 {
 
-    gaze_helper.loadBufferPattern("../../data/checkerboard_rot.bmp");
+    gaze_helper.loadBufferPattern("../data/checkerboard_rot.bmp");
     gaze_helper.setResolution(OSZoom*window_width,OSZoom*window_height);
     gaze_helper.setRadius(eye_radius);
 
@@ -311,8 +311,8 @@ void CreateLights(void)
 	string path_fs;
 	string path_vs;
 
-	FileUtils::Search("../lit_scene.vs", path_vs );
-	FileUtils::Search("../lit_scene.fs", path_fs );
+	FileUtils::Search("../src/lit_scene.vs", path_vs );
+	FileUtils::Search("../src/lit_scene.fs", path_fs );
 
     // Load the shader program
     int program = cs557::LoadAndCreateShaderProgram( path_vs, path_fs);
@@ -380,8 +380,8 @@ void CreateTeapotModel(void)
 
 	string path_fs;
 	string path_vs;
-	FileUtils::Search("../fr_lit_scene_ext.vs", path_vs );
-	FileUtils::Search("../fr_lit_scene_ext.fs", path_fs );
+	FileUtils::Search("../src/fr_lit_scene_ext.vs", path_vs );
+	FileUtils::Search("../src/fr_lit_scene_ext.fs", path_fs );
 
 	 // Load the shader program
     int program = cs557::LoadAndCreateShaderProgram( path_vs,  path_fs);
@@ -390,7 +390,7 @@ void CreateTeapotModel(void)
    // int program = cs557::LoadAndCreateShaderProgram("../fr_lit_scene_ext.vs",  "../fr_lit_scene_ext.fs");
 
     // load a teapot from file 
-    teapot0.create("../teapot_t.obj", program );
+    teapot0.create("../models/teapot_t.obj", program );
 	teapot0mat.model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, 0.0f, 0.0f)); 
 
     // Add light and material to the program. 
@@ -437,8 +437,8 @@ void CreatePlane(void)
 
 	string path_fs;
 	string path_vs;
-	FileUtils::Search("../fr_lit_scene_ext.vs", path_vs );
-	FileUtils::Search("../fr_lit_scene_ext.fs", path_fs );
+	FileUtils::Search("../src/fr_lit_scene_ext.vs", path_vs );
+	FileUtils::Search("../src/fr_lit_scene_ext.fs", path_fs );
 
     // Load the shader program
     int program = cs557::LoadAndCreateShaderProgram( path_vs,  path_fs);
@@ -485,8 +485,8 @@ void LoadModels(void)
 		string path_fs;
 		string path_vs;
 
-		FileUtils::Search("../fr_lit_scene_ext.vs", path_vs );
-		FileUtils::Search("../fr_lit_scene_ext.fs", path_fs );
+		FileUtils::Search("../src/fr_lit_scene_ext.vs", path_vs );
+		FileUtils::Search("../src/fr_lit_scene_ext.fs", path_fs );
 
         // Load the shader program
         int program = cs557::LoadAndCreateShaderProgram( path_vs,  path_fs);

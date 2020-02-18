@@ -13,3 +13,4 @@ models/.DS_Store
 scripts/result
 src/FoveatedRendererOpenGL.dir/
 x64/
+src/FoveatedRendererOpenGL.vcxproj.user
