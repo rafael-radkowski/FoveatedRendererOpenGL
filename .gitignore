@@ -1,0 +1,15 @@
+*.vcxproj
+*.filters
+*.txt
+*.sln
+cmake_install.cmake
+.vs/
+bin/
+CMakeFiles/
+data/.DS_Store
+data/._.DS_Store
+data/._checkerboard_rot.bmp
+models/.DS_Store
+scripts/result
+src/FoveatedRendererOpenGL.dir/
+x64/
