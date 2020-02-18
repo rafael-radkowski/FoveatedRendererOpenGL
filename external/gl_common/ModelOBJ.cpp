@@ -218,7 +218,7 @@ Draw the coordinate system
 */
 void cs557::OBJModel::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
 {
-	draw(projectionMatrix,  viewMatrix,  _modelMatrix );
+	draw(projectionMatrix,  viewMatrix,  _prop.model_matrix );
 }
 
 

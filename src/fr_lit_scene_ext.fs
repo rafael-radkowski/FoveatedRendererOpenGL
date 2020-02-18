@@ -103,7 +103,7 @@ vec4 useLight(vec3 L, vec3 E, vec3 N, LightSource s, Material m)
 
 
  	// check radius
-vec4 color_add = vec4(0.0,0.0,0.0,0.0);
+vec4 color_add = vec4(1.0,0.0,0.0,0.0);
 const vec3 E = vec3(0.0,0.0,0.0);
                        
 void main(void)                                                  
@@ -116,10 +116,11 @@ void main(void)
 	float d = distance(sc, eye_pos );
 
 	if(with_fr == 1){
-
+		color_add =  vec4(0.8,0.0,0.0,0.0);
 		if(d > eye_radius)
 		{
 			discard;
+			//color_add =  vec4(0.8,0.0,0.0,0.0);;
 		}
 		else
 		{

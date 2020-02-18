@@ -10,7 +10,7 @@ uniform vec3 light_direction;
 
 in vec3 in_Position;                                                                                                           
 in vec3 in_Normal;    
-
+in vec2 in_Texture;
 
 // The material parameters
 uniform struct LightSource {

@@ -96,7 +96,7 @@ namespace cs557
 		Set the object's model matrix
 		@param m - 4x4 model matrix
 		*/
-		void setModelMatrix(glm::mat4 m) {_modelMatrix = m; }
+		void setModelMatrix(glm::mat4 m) {_prop.model_matrix = m; }
 
 
 		/*
@@ -111,6 +111,10 @@ namespace cs557
 		@param value - true to enable texture rendering. 
 		*/
 		void enableTextureRendering(bool value);
+
+
+
+
 
 	private:
 
@@ -137,7 +141,9 @@ namespace cs557
 
 		bool	with_textures; // to enable or disable texture rendering
 
-		glm::mat4 _modelMatrix;
+		// the object's  properties
+		Properties 	_prop;
+
 
 		// indices to render
 		std::vector<int>		start_index;

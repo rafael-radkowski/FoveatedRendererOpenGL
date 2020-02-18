@@ -1,18 +1,7 @@
 /*
 This code is part of CS/CPRE/ME 557 - Computer Graphics
 
-This example demonstrates how one can set up multiple light sources with GLSL
-per-fragment-light. The scene incorporates a plane and a teapot model 
-along with three light sources. 
 
-- The plane is a two-triangle plane to be found in ModelPlane.h/.cpp
-- The teapot comes from a file teapot_t.obj, which is loaded in ModelOBJ.h/.cpp
-- Shader code for per-fragment-light: lit_scene.vs/.fs
-
-Light and material types are declared in CommonTypes.h.
-
-Note that this example loads and creates one shader program per 3D model, 
-although it is 3x the same model (feel free to change this).
 
 Rafael Radkowski
 Iowa State University
@@ -948,7 +937,7 @@ void Draw(void)
 //------------------------------------------------------------
 //
 //	RENDER THE SCENE
-int main(int argc,  char **argv)
+int old_main(int argc,  char **argv)
 {
     cout << "Foveated rendering test app." << endl;
     cout << "Rafael Radkowski\nrafael@iastate.edu\nIowa State University\n" << endl;
