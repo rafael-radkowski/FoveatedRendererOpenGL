@@ -74,6 +74,8 @@ class DefaultModels {
 
 public:
 
+	DefaultModels();
+
 	/*
 	Create a plane
 	*/
@@ -99,6 +101,7 @@ private:
 	// a plane
 	cs557::Plane		plane0;
 	cs557::Material		plane0_mat;
+	bool				draw_plane;
 
 	std::vector<cs557::OBJModel> _scene_models;
 

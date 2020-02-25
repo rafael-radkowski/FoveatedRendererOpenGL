@@ -70,9 +70,8 @@ void cs557::OBJModel::create(string path_and_filename, int shader_program)
 	float center_y = 0.0;
 	float center_z = 0.0;
 
-	std::vector<std::pair<glm::vec3, glm::vec2> > points; // points and texture coordinates
-	std::vector<glm::vec3> normals;
-	std::vector<int> indices;
+
+	
 
 	
 
@@ -106,11 +105,25 @@ void cs557::OBJModel::create(string path_and_filename, int shader_program)
 
 
 	int size = loader.LoadedMeshes.size();
+	bool warning = false;
+
+	if (size > 1000) {
+		std::cout << "[INFO] - Model " << path_and_filename << " exceeds 1000 meshes. Expect long loading times." << std::endl;
+		warning = true;
+	}
+
+
+	std::vector<std::pair<glm::vec3, glm::vec2> > points; // points and texture coordinates
+	std::vector<glm::vec3> normals;
+	std::vector<int> indices;
+
+	std::vector<Vertex> vertex;
 
 	for(int i=0; i<size; i++)
 	{
+		auto t0 = std::chrono::high_resolution_clock::now();
 
-		objl::Mesh curMesh = loader.LoadedMeshes[i];
+		objl::Mesh& curMesh = loader.LoadedMeshes[i];
 
 
 		// process all materials
@@ -123,24 +136,67 @@ void cs557::OBJModel::create(string path_and_filename, int shader_program)
 		mat.ambient_int = 0.2;
 		mat.diffuse_int = 0.8;
 		mat.with_error_check = false;
+		mat.name = curMesh.MeshMaterial.name;
+		mat.map_diffuse = curMesh.MeshMaterial.map_Kd;
+		mat.map_ambient = curMesh.MeshMaterial.map_Ka;
+		mat.map_specular = curMesh.MeshMaterial.map_Ks;
+	
+		int material_id = 0;
+		MaterialLibrary::AddMaterial(mat, material_id);
+ 		MaterialLibrary::CopyMaterialToGPU(program, material_id);
+		materials_ids.push_back(material_id);
 
-		materials.push_back(mat);
+
+		auto t1 = std::chrono::high_resolution_clock::now();
 
 		// process all textures
-		processTextures(program, curMesh, path_and_filename);
+		//processTextures(program, curMesh, path_and_filename);
 	
+		auto t2 = std::chrono::high_resolution_clock::now();
 
-		for (int j = 0; j < curMesh.Vertices.size(); j++)
-		{
-			points.push_back(make_pair( glm::vec3(curMesh.Vertices[j].Position.X, curMesh.Vertices[j].Position.Y, curMesh.Vertices[j].Position.Z),
-			 							glm::vec2(curMesh.Vertices[j].TextureCoordinate.X, curMesh.Vertices[j].TextureCoordinate.Y )));
-			normals.push_back(glm::vec3(curMesh.Vertices[j].Normal.X, curMesh.Vertices[j].Normal.Y, curMesh.Vertices[j].Normal.Z) );
-		}
-		
+		//for (int j = 0; j < curMesh.Vertices.size(); j++)
+		//{
+		//	points.push_back(make_pair( glm::vec3(curMesh.Vertices[j].Position.X, curMesh.Vertices[j].Position.Y, curMesh.Vertices[j].Position.Z),
+		//	 							glm::vec2(curMesh.Vertices[j].TextureCoordinate.X, curMesh.Vertices[j].TextureCoordinate.Y )));
+		//	normals.push_back(glm::vec3(curMesh.Vertices[j].Normal.X, curMesh.Vertices[j].Normal.Y, curMesh.Vertices[j].Normal.Z) );
+		//}
+
+		//std::vector<Vertex*>::iterator itr = reinterpret_cast<Vertex*>(&*curMesh.Vertices.begin());
+
+		/*
+		std::vector<objl::Vertex>::iterator itr = curMesh.Vertices.begin();
+		objl::Vertex v = (*itr);
+
+		std::vector<objl::Vertex>::iterator itre = curMesh.Vertices.end()-1;
+		objl::Vertex ve = (*itre);
+		*/
+
+
+		/*
+		Something is wrong with curMesh.Vertices. The last element cannot be dereferenced. 
+		It results in an memory access error, although the value is available. It works with -1, howver, 
+		one triangle is missing. The +1 add this triangle again. 
+		*/
+		std::copy( (Vertex*)( &(*curMesh.Vertices.begin()) ),
+				   (Vertex*)(&(*(curMesh.Vertices.end()-1)) +1),
+					std::back_inserter(vertex));
+
+
+		auto t3 = std::chrono::high_resolution_clock::now();
 
 		start_index.push_back(current_start_index);
 		length.push_back(curMesh.Indices.size());
 
+
+		std::vector<unsigned int> localI(curMesh.Indices.begin(), curMesh.Indices.end());
+		std::transform(localI.begin(), localI.end(), localI.begin(), std::bind2nd(std::plus<unsigned int>(), current_start_index ));
+
+		std::copy( localI.begin(), localI.end(),std::back_inserter(indices));
+
+
+
+		auto t4 = std::chrono::high_resolution_clock::now();
+/*
 		for (int j = 0; j < curMesh.Indices.size(); j++)
 		{
 			indices.push_back(curMesh.Indices[j] + current_start_index); 
@@ -149,16 +205,38 @@ void cs557::OBJModel::create(string path_and_filename, int shader_program)
 			// This code puts all vertices and indices into one vertex buffer and index buffer. 
 			// So the + current_start_index implements the offset jump. 
 		}
-
+*/
 		current_start_index += curMesh.Indices.size();
 
+		if (warning && i%100 == 0) {
+			std::cout << "...processing mesh" << std::endl;
+		}
+
+
+		/*
+		auto t5 = std::chrono::high_resolution_clock::now();
+		auto t01 = std::chrono::duration_cast<std::chrono::nanoseconds>(t1-t0); // material
+		auto t12 = std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1); // texture
+		auto t23 = std::chrono::duration_cast<std::chrono::nanoseconds>(t3-t2); // vertics
+		auto t34 = std::chrono::duration_cast<std::chrono::nanoseconds>(t4-t3); // indicies
+		*/
+		//std::cout << t01.count() /1e6 << "\t "<< t12.count() /1e6 << "\t "<< t23.count() /1e6 << "\t "<< t34.count() /1e6 << "\t" << curMesh.Vertices.size() << endl;
+
 	}
+
+	if (warning ) {
+			std::cout << "mesh ready" << std::endl;
+		}
+
 	_I = indices.size();
-	_N = points.size();
+	//_N = points.size();
+	_N = vertex.size();
 
 	// create a vertex buffer object
-	cs557::CreateVertexObjectsIndexed53(vaoID, vboID, iboID, &points[0].first.x, &normals[0].x, _N, &indices[0], _I, pos_location, tex_location, norm_location );
-
+//	cs557::CreateVertexObjectsIndexed53(vaoID, vboID, iboID, &points[0].first.x, &normals[0].x, _N, &indices[0], _I, pos_location, tex_location, norm_location );
+	
+	cs557::CreateVertexObjectsIndexed8I( vaoID, vboID, iboID, &vertex[0].position.x , _N,  &indices[0], _I,
+										 pos_location, tex_location, norm_location);
 }
 
 
@@ -186,15 +264,16 @@ void cs557::OBJModel::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, glm
 	glBindVertexArray(vaoID[0]);
 
 	for (int i = 0; i < start_index.size(); i++) {
-		materials[i].apply(program);
+		
+		MaterialLibrary::EnableMaterial(program, materials_ids[i]);
 		glUseProgram(program);
 
 		// apply texturs
-		if (textures[i].num_textures > 0 && with_textures) {
+	//	if (textures[i].num_textures > 0 && with_textures) {
 			 // Activate the texture unit and bind the texture. 
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, textures[i].diff.tex_id);
-		}
+	//		glActiveTexture(GL_TEXTURE0);
+	//		glBindTexture(GL_TEXTURE_2D, textures[i].diff.tex_id);
+	//	}
 
 
 		// Draw the triangles
@@ -267,6 +346,9 @@ void cs557::OBJModel::processTextures(int& program, objl::Mesh& curMesh, string 
 
 		tex.num_textures++;
 	}
+
+
+
 
 	//-------------------------------------------------------------------------------------------------------
 	// ambient texture

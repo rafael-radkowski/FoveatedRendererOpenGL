@@ -91,6 +91,7 @@ namespace cs557
 
 
 
-							 
+	bool CreateVertexObjectsIndexed8I( int* vaoID, int* vboID, int* iboID, float* points_texture_normals, int N, int* indices, int I,
+						int vertices_location, int tex_coord_location, int normals_location);	 
 
 }

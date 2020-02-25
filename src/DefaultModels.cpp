@@ -1,13 +1,17 @@
 #include "DefaultModels.h"
 
 
-
+DefaultModels::DefaultModels()
+{
+	draw_plane = false;
+}
 
 /*
 Create a plane
 */
 void DefaultModels::createPlane(float sizeX, float sizeY, unsigned int program)
 {
+	draw_plane = true;
 
 	//------------------------------------------------
     // Create a plane
@@ -136,9 +140,14 @@ bool DefaultModels::createModelGrid(std::string path_and_file, int grid_rows, in
 void DefaultModels::draw(glm::mat4 pm, glm::mat4 vm)
 {
 
-	glUseProgram(plane0.getProgram());
-	plane0_mat.apply(plane0.getProgram());
-	plane0.draw(pm,vm, plane0_mat.model_matrix);
+	if(draw_plane){
+		glUseProgram(plane0.getProgram());
+		glBindTexture(GL_TEXTURE_2D, 0 );
+		int mu = glGetUniformLocation(plane0.getProgram(), "texture_multiplier");
+		glUniform1f(mu, 0.0);
+		plane0_mat.apply(plane0.getProgram());
+		plane0.draw(pm,vm, plane0_mat.model_matrix);
+	}
 
 
 	// render all mdoels

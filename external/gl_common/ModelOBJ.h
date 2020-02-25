@@ -43,6 +43,9 @@ Feb 16, 2020, RR
 #include <sstream>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <iterator>
+#include <chrono>
 
 // GLEW include
 #include <GL/glew.h>
@@ -60,6 +63,7 @@ Feb 16, 2020, RR
 #include "CommonTypes.h"			// material
 #include "Texture2D.h"
 #include "TextureLoader.h"
+#include "MaterialLibrary.h"		// manages the materials
 
 using namespace std;
 
@@ -68,6 +72,27 @@ namespace cs557
 {
 
 	class OBJModel {
+
+	private:
+
+
+		// Structure: Vertex
+		//
+		// Description: Model Vertex object that holds
+		//	a Position, Normal, and Texture Coordinate
+		typedef struct Vertex
+		{
+			// Position Vector
+			glm::vec3 position;
+
+			// Normal Vector
+			glm::vec3 normal;
+
+			// Texture Coordinate Vector
+			glm::vec2 textureCoordinate;
+
+		}Vertex;
+
 	
 	public:
 		/*
@@ -149,7 +174,9 @@ namespace cs557
 		std::vector<int>		start_index;
 		std::vector<int>		length;
 
-		std::vector<cs557::Material>		materials;//material per mesh
+		// materials, their ids in the material library. 
+		// the materials are stored per mesh.
+		std::vector<int>					materials_ids;
 		std::vector< cs557::TexMaterial>	textures;// textures per mesh
 	
 		int _N; // number of vertices

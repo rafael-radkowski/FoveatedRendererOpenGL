@@ -1,5 +1,6 @@
 #version 410 core     
 #define MAX_LIGHTS 12
+#define MAX_MATERIAL 100
 
 uniform mat4 projectionMatrix;                                    
 uniform mat4 viewMatrix;                                           
@@ -7,7 +8,8 @@ uniform mat4 modelMatrix;
                                                                    
 in vec3 pass_Normal;     
 in vec3 pass_Position;   
-in vec4 pass_Color;   
+in vec4 pass_Color; 
+in vec2 pass_Texture;  
 
 // The material parameters
 uniform struct LightSource {
@@ -33,7 +35,9 @@ uniform struct Material {
  	vec3  specColor;
  	float specInt;
  	float shininess;
-} mat[1];
+} mat[MAX_MATERIAL];
+
+uniform int material_index;
 
 // for foveated rendering
 uniform vec2 eye_pos;
@@ -41,7 +45,16 @@ uniform vec2 screen_res;
 uniform float eye_radius;
 //uniform sampler2D buffer_pattern;
 //uniform sampler2D tex;
-uniform int with_fr;
+uniform int with_fr; // to activate or deactivate foveated rendering
+
+
+uniform struct Texture {
+	sampler2D tex_kd;
+	int		  with_tex_kd;
+}tex[50];
+
+uniform int texture_index;
+uniform float texture_multiplier;
 
 out vec4 color;       
 
@@ -140,11 +153,17 @@ void main(void)
 
 				// checks whether the light was set.
 				// Multiple lights blend adative
-				mixed += useLight( L,  E,  pass_Normal, light[i], mat[0]);
+				mixed += useLight( L,  E,  pass_Normal, light[i], mat[material_index]);
 				
 			}
+			
+			vec4 tex_color = vec4(0.0, 0.0, 0.0, 0.0);
+			if(tex[texture_index].with_tex_kd == 1){
+				tex_color = texture(tex[texture_index].tex_kd, pass_Texture.xy);
+			}
+			
 		
-			color_add = mixed + vec4(0.8,0.0,0.0,0.0);;
+			color_add = (1.0-texture_multiplier) * mixed + texture_multiplier * tex_color + vec4(0.8,0.0,0.0,0.0);
 		}
 
 	}else
@@ -164,11 +183,18 @@ void main(void)
 
 			// checks whether the light was set.
 			// Multiple lights blend adative
-			mixed += useLight( L,  E,  pass_Normal, light[i], mat[0]);
+			mixed += useLight( L,  E,  pass_Normal, light[i], mat[material_index]);
 				
 		}
-
-		color_add = mixed;
+		
+		vec4 tex_color = vec4(0.0, 0.0, 0.0, 0.0);
+		if(tex[texture_index].with_tex_kd == 1){
+			tex_color = texture(tex[texture_index].tex_kd, pass_Texture.xy);
+		}
+		
+			
+		
+		color_add = (1.0-texture_multiplier) * mixed + texture_multiplier * tex_color;
 	}
 	
 	

@@ -69,7 +69,7 @@ uniform struct Material {
  	vec3  specColor;
  	float specInt;
  	float shininess;
-} mat[1];
+} mat[material_index];
 			
 The code will not work otherwise (or you have to adapt the names).
 
@@ -79,8 +79,14 @@ Note that the example shader code creates just one mat[1] object per program.
 typedef struct Material
 {
 
+	// material name
+	std::string	name;
+
     // textrue id
-	unsigned int texture_id;
+	std::string map_diffuse;
+	std::string map_ambient;
+	std::string map_specular;
+	int			texture_id; // the texture lib id
 
     // model matrix
 	glm::mat4 model_matrix;
@@ -98,8 +104,15 @@ typedef struct Material
     int      error_count;
 	bool	 with_error_check;
 
+	// material index
+	// this is the glsl material index, the location in the 
+	// gpu material struct. 
+	int		material_index;
+
 	Material(){
-		texture_id = -1;
+		//texture_id = -1;
+	
+		material_index = 0;
 		model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(.0f, 0.0f, 0.0f)); 
 
         diffuse_mat = glm::vec3(0.8,0.8,0.8);
@@ -110,8 +123,16 @@ typedef struct Material
         specular_int = 1.0;
         specular_s = 12.0;
 
+		name = "Material";
+
         error_count = 0;
 		with_error_check = true;
+
+		map_diffuse = "";
+		map_ambient = "";
+		map_specular = "";
+		texture_id = -1;
+		
 	}
 
 
@@ -122,15 +143,17 @@ typedef struct Material
     */
     inline void setAllUniform(int program_id )
     {
-
+		
         glUseProgram(program_id );
-        if(checkName(program_id, "mat[0].diffColor")) glUniform3fv(glGetUniformLocation(program_id , "mat[0].diffColor"), 1, &diffuse_mat[0]);
-        if(checkName(program_id, "mat[0].diffInt")) glUniform1f(glGetUniformLocation(program_id , "mat[0].diffInt"), diffuse_int);
-        if(checkName(program_id, "mat[0].ambColor")) glUniform3fv(glGetUniformLocation(program_id , "mat[0].ambColor"), 1, &ambient_mat[0]);
-        if(checkName(program_id, "mat[0].ambInt")) glUniform1f(glGetUniformLocation(program_id , "mat[0].ambInt"), ambient_int);
-        if(checkName(program_id, "mat[0].specColor")) glUniform3fv(glGetUniformLocation(program_id , "mat[0].specColor"), 1, &specular_mat[0]);
-        if(checkName(program_id, "mat[0].specInt")) glUniform1f(glGetUniformLocation(program_id , "mat[0].specInt"), specular_int);
-        if(checkName(program_id, "mat[0].shininess")) glUniform1f(glGetUniformLocation(program_id , "mat[0].shininess"), specular_s);
+		if(checkName(program_id, "material_index" )) glUniform1i(glGetUniformLocation(program_id, "material_index" ), material_index);
+
+        if(checkName(program_id, getVariableName("mat", material_index, "diffColor") )) glUniform3fv(glGetUniformLocation(program_id, getVariableName("mat", material_index, "diffColor").c_str() ), 1, &diffuse_mat[0]);
+        if(checkName(program_id, getVariableName("mat", material_index, "diffInt") )) glUniform1f(glGetUniformLocation(program_id, getVariableName("mat", material_index, "diffInt").c_str() ), diffuse_int);
+        if(checkName(program_id, getVariableName("mat", material_index, "ambColor") )) glUniform3fv(glGetUniformLocation(program_id,  getVariableName("mat", material_index, "ambColor").c_str() ), 1, &ambient_mat[0]);
+        if(checkName(program_id, getVariableName("mat", material_index, "ambInt") )) glUniform1f(glGetUniformLocation(program_id, getVariableName("mat", material_index, "ambInt").c_str() ), ambient_int);
+        if(checkName(program_id, getVariableName("mat", material_index, "specColor") )) glUniform3fv(glGetUniformLocation(program_id, getVariableName("mat", material_index, "specColor").c_str()), 1, &specular_mat[0]);
+        if(checkName(program_id, getVariableName("mat", material_index, "specInt") )) glUniform1f(glGetUniformLocation(program_id, getVariableName("mat", material_index, "specInt").c_str()), specular_int);
+        if(checkName(program_id, getVariableName("mat", material_index, "shininess") )) glUniform1f(glGetUniformLocation(program_id, getVariableName("mat", material_index, "shininess").c_str()), specular_s);
 
         glUseProgram(0);
     }
@@ -151,12 +174,26 @@ typedef struct Material
     {
         
         int ret = glGetUniformLocation(program_id, name.c_str());
-        if(ret == -1 && error_count < 7 && with_error_check){
+        if(ret == -1 && error_count < 8 && with_error_check){
             std::cout << ret << " [ERROR] - Material - Cannot find shader program variable " << name << ".\nDid you add the right variable name?" << std::endl; 
             error_count++;
             return false;
         }
         return true;
+    }
+
+
+	 /*
+    Assemble a varibale name string from three components.
+    */
+    inline std::string getVariableName(std::string struct_name, int index, std::string variable_name)
+    {
+        std::string name = struct_name;
+        name.append("[");
+        name.append(std::to_string(index));
+        name.append("].");
+        name.append(variable_name);
+        return name;
     }
 
 
@@ -417,7 +454,12 @@ typedef enum {
 
 }TextureMode;
 
-
+typedef enum {
+	DIFFUSE,
+	SPECULAR,	//C = Ct
+	AMBIENT, //	C = Ct*Cf
+	EMISSIVE
+}TextureType;
 
 
 /*
@@ -427,13 +469,21 @@ Stores all relevant texture data and meta data.
 typedef struct _Texture {
 
 	unsigned int		tex_unit; // texture unit
-	unsigned int		tex_id; // texture id
-	int					tex_loc; // texture shader location. 
+	unsigned int		tex_id; // the glsl texture id
+	int					tex_loc; // texture glsl shader location on host system
 	unsigned char*		map; // location of the texture data
 	int					width; // texture height 
 	int					height; // texture width
 	int					channels; // texture channels
+	std::string			name; // the texture name;
 
+	bool	with_error_check;
+
+	int					texture_index; // the texture index of this material in the glsl texture lib
+	float				texture_multiplier;
+
+
+	TextureType			type;
 
 	_Texture() {
 		tex_unit = 0;
@@ -443,8 +493,87 @@ typedef struct _Texture {
 		width = 0;
 		height = 0;
 		channels = 0;
+		name = "Texture";
+		type = DIFFUSE;
+		texture_index = 0;
+		texture_multiplier = 0.8;
+
+		with_error_check = true;
 	
 	}
+
+
+	inline void setActive(int shader_program_id) {
+
+		glUseProgram(shader_program_id);
+
+		// Activate the texture unit and bind the texture. 
+		glActiveTexture(tex_unit);
+		glBindTexture(GL_TEXTURE_2D, tex_id);
+
+		if(checkName(shader_program_id, "texture_index" )) glUniform1i(glGetUniformLocation(shader_program_id, "texture_index" ), texture_index);
+		
+		// Fetch the texture location and set the parameter to 0.
+		// Note that 0 is the number of the texture unit GL_TEXTURE0.
+		int location = glGetUniformLocation(shader_program_id, getVariableName("tex", texture_index, "tex_kd").c_str());
+		glUniform1i(location, tex_unit);
+
+		// set the texture to active. 
+		int u = glGetUniformLocation(shader_program_id, getVariableName("tex", texture_index, "with_tex_kd").c_str());
+		glUniform1i(u, 1);
+
+		if(checkName(shader_program_id, "texture_multiplier" )) glUniform1f(glGetUniformLocation(shader_program_id, "texture_multiplier" ), texture_multiplier);
+
+		glUseProgram(shader_program_id);
+	}
+	
+
+	inline void apply(int shader_program_id)
+    {
+		glUseProgram(shader_program_id );
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, tex_id);
+
+		if(checkName(shader_program_id, "texture_index" )) glUniform1i(glGetUniformLocation(shader_program_id, "texture_index" ), texture_index);
+		if(checkName(shader_program_id, "texture_multiplier" )) glUniform1f(glGetUniformLocation(shader_program_id, "texture_multiplier" ), texture_multiplier);
+		
+        if(checkName(shader_program_id, getVariableName("tex", texture_index, "tex_kd") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "tex_kd").c_str()), tex_unit);
+        if(checkName(shader_program_id, getVariableName("tex", texture_index, "with_tex_kd") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "with_tex_kd").c_str()), 1);
+        
+		glUseProgram(0);
+    }
+
+
+	  /*
+    This function checks for the variable names in the shader program shader_program_id
+    */
+    inline bool checkName(int shader_program_id, std::string variable_name)
+    {
+
+        int ret = glGetUniformLocation(shader_program_id, variable_name.c_str());
+        if(ret == -1 && with_error_check){
+           // std::cout << ret << " [ERROR] - LightSource " << index << "  - Cannot find shader program variable " << variable_name << " (program: "<< shader_program_id << ").\nDid you add the right variable name?" << std::endl; 
+            return false;
+        }
+        return true;
+    }
+
+
+
+
+	/*
+    Assemble a varibale name string from three components.
+    */
+    inline std::string getVariableName(std::string struct_name, int index, std::string variable_name)
+    {
+        std::string name = struct_name;
+        name.append("[");
+        name.append(std::to_string(index));
+        name.append("].");
+        name.append(variable_name);
+        return name;
+    }
 
 }Texture;
 
@@ -482,6 +611,7 @@ typedef struct _TexMaterial
 	Texture				env; // environment map. 
 
 	TextureMode			tex_mode;
+			
 
 	  // error count, a helper to issue warning.
     int      error_count;

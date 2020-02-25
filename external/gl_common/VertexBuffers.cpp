@@ -272,3 +272,75 @@ bool cs557::CreateVertexObjects53(int* vaoID, int* vboID, float* vertices_textur
 
 
 
+
+
+
+/*
+Create vertex buffer object for points and normal vectors + an index list
+@param vaoID - address to store the vertex array object
+@param vboID - address to store the vertex buffer objects. Note, TWO array elements are required to create buffers of vertices and normals and texture coordinate. 
+@param iboID - address to store the index buffer object
+@param points_texture_normals - pointer to an array containing vertices, texture coords, and normals as [x0, y0, z0, u0, v0, nx0, ny0, nz0,  x1, y1, z1,  u1, v1, nx1, ny1, nz1,...]
+@param N - the number of vertices and colors, NOT THE LENGTH OF THE ARRAY. 
+@param indices - pointer to an array with indices
+@param I - the number of indices
+@param vertices_location - the GLSL vertices location 
+@param tex_coord_location -  the GLSL texture coordinate location 
+@param normals_location - the GLSL normal vectors locations
+*/
+bool cs557::CreateVertexObjectsIndexed8I( int* vaoID, int* vboID, int* iboID, float* points_texture_normals, int N, int* indices, int I,
+											int vertices_location, int tex_coord_location, int normals_location)
+{
+	if (points_texture_normals == NULL )
+	{
+		std::cout << "[ERROR] - CreateVertexObjectsIndexed8Idx: No vertices or normal given." << std::endl;
+		return false;
+	}
+
+	glGenVertexArrays(1, (GLuint*)vaoID); // Create our Vertex Array Object
+	glBindVertexArray(*vaoID); // Bind our Vertex Array Object so we can use it
+
+	if (vaoID[0] == -1){
+		std::cout << "[ERROR] - Vertex array object was not generated." << std::endl;
+		return false;
+	}
+
+	glGenBuffers(2, (GLuint*)vboID); // Generate our Vertex Buffer Object for points, normals, and texture coordinates
+	glGenBuffers(1, (GLuint*)iboID);
+
+	if (vboID[0] == -1 || vboID[1] == -1 ||  iboID[0] == -1){
+		std::cout << "[ERROR] - One or both vertex buffer objects were not generated." << std::endl;
+		return false;
+	}
+
+
+	// vertices
+	glBindBuffer(GL_ARRAY_BUFFER, vboID[0]); // Bind our Vertex Buffer Object
+	glBufferData(GL_ARRAY_BUFFER, N *  8 * sizeof(GLfloat), points_texture_normals, GL_STATIC_DRAW); // Set the size and data of our VBO and set it to STATIC_DRAW
+
+	glVertexAttribPointer((GLuint)vertices_location, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), 0); // Set up our vertex attributes pointer
+	glEnableVertexAttribArray(vertices_location); // Enable the Vertex Array Object
+
+	//Normals
+	glVertexAttribPointer((GLuint)normals_location, 3, GL_FLOAT, GL_TRUE, 8 *sizeof(GLfloat), (const GLvoid*)(3 * sizeof(GLfloat))); // Set up our vertex attributes pointer
+	glEnableVertexAttribArray(normals_location); // Enable the second vertex attribute array
+
+	// Texture Coordinates
+	glVertexAttribPointer((GLuint)tex_coord_location, 2, GL_FLOAT, GL_FALSE, 8 *sizeof(GLfloat), (const GLvoid*)(6 * sizeof(GLfloat))); // Set up our texture attributes pointer
+	glEnableVertexAttribArray(tex_coord_location); // Enable the Vertex Array Object
+
+
+	// Index buffer
+  	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID[0]);
+  	glBufferData(GL_ELEMENT_ARRAY_BUFFER, I * sizeof(unsigned int),
+              	indices, GL_STATIC_DRAW);
+
+
+	glBindVertexArray(0); // Disable our Vertex Buffer Object
+
+
+
+	return true;
+
+}
+

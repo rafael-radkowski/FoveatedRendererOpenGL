@@ -37,10 +37,11 @@ bool FoveatedRenderingScene::addModelGrid(std::string path_and_file, int grid_he
 
 /*
 */
-bool FoveatedRenderingScene::createContent(void)
+bool FoveatedRenderingScene::createContent(bool default_plane)
 {
 	// create a default plane
- 	_defaultModels.createPlane(10.0, 10.0, getFRProgram());
+	if(default_plane)
+ 		_defaultModels.createPlane(10.0, 10.0, getFRProgram());
 
 	// load all objects from files
 	size_t size = _loading_list.size();
@@ -87,7 +88,7 @@ void FoveatedRenderingScene::createLights(int num_lights)
     // Create a second light. 
     _lights[1].pos =  glm::vec3(0.0f, 3.0f, 3.0f);
     _lights[1].dir =  glm::vec3(0.0f, 0.0f, 0.0f);
-    _lights[1].color = glm::vec3(0.0f, 0.0f, 1.0f);
+    _lights[1].color = glm::vec3(1.0f, 1.0f, 1.0f);
 
 
     //---------------------------------------------------------

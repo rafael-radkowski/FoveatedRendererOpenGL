@@ -108,13 +108,20 @@ FoveatedRenderingScene* frrenderer;
 
 string object_str[] = { "../models/teapot.obj",
 						"../models/teapot_t.obj"};
-
 glm::vec3 object_t[] = {glm::vec3(2.0, 0.0, 0.0),
 						glm::vec3(-2.0, 0.0, 0.0)};
 
-
 std::vector<std::string> object_to_load(object_str, object_str + sizeof(object_str) / sizeof(std::string));
 std::vector<glm::vec3> object_transformation(object_t, object_t + sizeof(object_t) / sizeof(glm::vec3));
+
+
+string object_park_str[] = { "../models/ParkObj2/park.obj"};
+glm::vec3 object_park_t[] = {glm::vec3(0.0, 0.0, 0.0)};
+
+
+std::vector<std::string> object_park(object_park_str, object_park_str + sizeof(object_park_str) / sizeof(std::string));
+std::vector<glm::vec3> object_park_transformation(object_park_t, object_park_t + sizeof(object_park_t) / sizeof(glm::vec3));
+
 
 
 
@@ -187,7 +194,7 @@ void InitScene(void)
 
     // Init the GLFW Window
     window = cs557::initWindow(frparams.window_height, frparams.window_width);
-
+	cs557::SetCameraSpeed(0.1, 0.1);
    
     // set a keyboard callback
     glfwSetKeyCallback(window, my_key_callback);
@@ -234,6 +241,102 @@ void InitScene(void)
 }
 
 
+void InitPark(void){
+	
+	  // Projection transformations
+	projectionMatrix = glm::perspective(1.57f, (float)frparams.window_height / (float)frparams.window_width, 0.1f, 2000.f);
+	viewMatrix = glm::lookAt(glm::vec3(1.0f, -100.0f, 150.f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    // Init the GLFW Window
+    window = cs557::initWindow(frparams.window_height, frparams.window_width);
+	cs557::SetCameraSpeed(0.3, 0.3);
+   
+    // set a keyboard callback
+    glfwSetKeyCallback(window, my_key_callback);
+
+    // Initialize the GLEW apis
+    cs557::initGlew();
+
+	cs557::SetCameraSpeed(10.0, 10.0);
+
+    // Create the scene
+    frrenderer  = new  FoveatedRenderingScene(frparams.window_height, frparams.window_width, frparams.tex_size, frparams.OSZoom);
+	frrenderer->loadEyeTrackingData(gaze_data_file);
+	frrenderer->setEyeRadius(frparams.eye_radius);
+	frrenderer->setObjectsToLoad(object_park, object_park_transformation);
+	frrenderer->createContent(false);
+	frrenderer->enableFR(frparams.with_fr);
+
+
+
+	// Time measurement
+	TimeMeasurement::Init(time_points_str_size, time_points_str);
+	TimeMeasurement::SetSaveFile(frparams.output_file);
+	TimeMeasurement::AddTimeDiff(0,6, "frame_all");
+	TimeMeasurement::AddTimeDiff(1,2, "fbo_queue");
+	TimeMeasurement::AddTimeDiff(3,4, "hr_queue");
+	TimeMeasurement::AddTimeDiff(5,6, "gpu_all");
+
+}
+
+
+void InitTest(void){
+
+
+	string test_obj_str[] = { "../models/sphere_t.obj",
+							  "../models/sphere_t4.obj",
+							  "../models/sphere_t2.obj",
+							  "../models/sphere_t3.obj",
+							  "../models/sphere_t5.obj",
+							  "../models/sphere_t6.obj",
+							   "../models/sphere_t2.obj",
+							    "../models/sphere_t.obj"};
+
+	glm::vec3 test_obj_t[] = { glm::vec3(2.0, 0.0, 0.0),
+							   glm::vec3(-2.0, 0.0, 0.0),
+							   glm::vec3(2.0, 2.0, 0.0),
+							   glm::vec3(-2.0, 2.0, 0.0),
+							    glm::vec3(2.0, -2.0, 0.0),
+							   glm::vec3(-2.0, -2.0, 0.0),
+							     glm::vec3(2.0, -4.0, 0.0),
+							   glm::vec3(-2.0, -4.0, 0.0)};
+
+	std::vector<std::string> object_to_load2(test_obj_str, test_obj_str + sizeof(test_obj_str) / sizeof(std::string));
+	std::vector<glm::vec3> object_transformation2(test_obj_t, test_obj_t + sizeof(test_obj_t) / sizeof(glm::vec3));
+	
+	  // Projection transformations
+	projectionMatrix = glm::perspective(1.57f, (float)frparams.window_height / (float)frparams.window_width, 0.1f, 400.f);
+	viewMatrix = glm::lookAt(glm::vec3(1.0f, -4.0f, 3.f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    // Init the GLFW Window
+    window = cs557::initWindow(frparams.window_height, frparams.window_width);
+	cs557::SetCameraSpeed(0.3, 0.3);
+   
+    // set a keyboard callback
+    glfwSetKeyCallback(window, my_key_callback);
+
+    // Initialize the GLEW apis
+    cs557::initGlew();
+
+    // Create the scene
+    frrenderer  = new  FoveatedRenderingScene(frparams.window_height, frparams.window_width, frparams.tex_size, frparams.OSZoom);
+	frrenderer->loadEyeTrackingData(gaze_data_file);
+	frrenderer->setEyeRadius(frparams.eye_radius);
+	frrenderer->setObjectsToLoad(object_to_load2, object_transformation2);
+	frrenderer->createContent();
+	frrenderer->enableFR(frparams.with_fr);
+
+
+
+	// Time measurement
+	TimeMeasurement::Init(time_points_str_size, time_points_str);
+	TimeMeasurement::SetSaveFile(frparams.output_file);
+	TimeMeasurement::AddTimeDiff(0,6, "frame_all");
+	TimeMeasurement::AddTimeDiff(1,2, "fbo_queue");
+	TimeMeasurement::AddTimeDiff(3,4, "hr_queue");
+	TimeMeasurement::AddTimeDiff(5,6, "gpu_all");
+
+}
 
 
 
@@ -382,8 +485,9 @@ int main(int argc,  char **argv)
 
 
 	// Init the scene 
-    InitScene();
-
+    //InitScene();
+	InitPark();
+	//InitTest();
 
 	// start drawing
 	DrawScene();

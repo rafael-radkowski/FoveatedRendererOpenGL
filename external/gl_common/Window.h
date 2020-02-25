@@ -52,6 +52,10 @@ namespace cs557
 	Returns the camera controller. 
 	*/
 	ControlsBase& GetCamera(void);
+
+
+
+	void SetCameraSpeed(float forward, float pan);
 	
 
 	/*

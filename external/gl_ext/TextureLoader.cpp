@@ -13,9 +13,9 @@ using namespace TextureLoaderInternal;
 //static 
 bool  TextureLoader::Load(string path_and_name, unsigned char** texture, int* width, int* height, int* channels)
 {
+	
 
-
-	if (!cs557::FileUtils::Exists(path_and_name)) {
+	if (!cs557::FileUtils::Search(path_and_name, path_and_name)) {
 		cout << "[ERROR] - Could not find file " << path_and_name << ". Check the file" << endl;
 		return false;
 	}
@@ -27,6 +27,8 @@ bool  TextureLoader::Load(string path_and_name, unsigned char** texture, int* wi
 		cout << "[ERROR] - Could not read image " << path_and_name << "." << endl;
 		return false;
 	}
+
+	
 
 	cv::Mat image_rs;
 	int new_size = (std::max)( FindNextPower2(image.rows), FindNextPower2(image.cols));

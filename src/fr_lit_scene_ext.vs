@@ -1,5 +1,6 @@
 #version 410 core                                                 
 #define MAX_LIGHTS 12
+#define MAX_MATERIAL 100
 
 uniform mat4 projectionMatrix;                                    
 uniform mat4 viewMatrix;                                           
@@ -36,14 +37,14 @@ uniform struct Material {
  	vec3  specColor;
  	float specInt;
  	float shininess;
-} mat[1];
+} mat[MAX_MATERIAL];
 
 
                                        
 out vec3 pass_Normal; 
 out vec3 pass_Position;
 out vec4 pass_Color;   
-
+out vec2 pass_Texture;
 
 
 /*
@@ -130,6 +131,7 @@ void main(void)
 	}
 	*/
 	pass_Color = pass_Color * 1.4;
+	pass_Texture = in_Texture;
 
 	// pass the position				                       
 	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(in_Position, 1.0);       

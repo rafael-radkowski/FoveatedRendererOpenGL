@@ -160,5 +160,15 @@ namespace cs557
 
 
 
+	void SetCameraSpeed(float forward, float pan)
+	{
+		camera.setLocomotionSpeed(forward);
+	}
+
+
+
+
+
+
 
 };//namespace cs557
