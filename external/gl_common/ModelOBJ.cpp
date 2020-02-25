@@ -107,10 +107,10 @@ void cs557::OBJModel::create(string path_and_filename, int shader_program)
 	int size = loader.LoadedMeshes.size();
 	bool warning = false;
 
-	if (size > 1000) {
-		std::cout << "[INFO] - Model " << path_and_filename << " exceeds 1000 meshes. Expect long loading times." << std::endl;
-		warning = true;
-	}
+	//if (size > 1000) {
+	//	std::cout << "[INFO] - Model " << path_and_filename << " exceeds 1000 meshes. Expect long loading times." << std::endl;
+	//	warning = true;
+	//}
 
 
 	std::vector<std::pair<glm::vec3, glm::vec2> > points; // points and texture coordinates
@@ -208,9 +208,9 @@ void cs557::OBJModel::create(string path_and_filename, int shader_program)
 */
 		current_start_index += curMesh.Indices.size();
 
-		if (warning && i%100 == 0) {
-			std::cout << "...processing mesh" << std::endl;
-		}
+		//if (warning && i%100 == 0) {
+		//	std::cout << "...processing mesh" << std::endl;
+		//}
 
 
 		/*
@@ -224,9 +224,9 @@ void cs557::OBJModel::create(string path_and_filename, int shader_program)
 
 	}
 
-	if (warning ) {
-			std::cout << "mesh ready" << std::endl;
-		}
+	//if (warning ) {
+	//		std::cout << "mesh ready" << std::endl;
+	//	}
 
 	_I = indices.size();
 	//_N = points.size();

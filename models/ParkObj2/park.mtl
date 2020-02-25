@@ -111,7 +111,7 @@ illum 2
 newmtl ocean
 Ns 62.745098
 Ka 0.700000 0.700000 0.700000
-Kd 1.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.500000
 Ks 1.000000 1.000000 1.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
@@ -173,7 +173,7 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Kd treeha.jpg
-map_Ka treeHaop.png
+map_Ka treeHaop.jpg
 
 newmtl treeHb
 Ns 1.960784
@@ -185,6 +185,7 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Kd treehb.jpg
+map_Ka treeHbop.png
 
 newmtl treeHc
 Ns 1.960784
@@ -196,6 +197,7 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Kd treehc.jpg
+map_Ka treeHcop.png
 
 newmtl treeHd
 Ns 1.960784
@@ -207,6 +209,7 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Kd treehd.jpg
+map_Ka treeHdop.png
 
 newmtl tw_floor
 Ns 1.960784

@@ -1,6 +1,6 @@
 #version 410 core                                                 
 #define MAX_LIGHTS 12
-#define MAX_MATERIAL 100
+#define MAX_MATERIAL 50
 
 uniform mat4 projectionMatrix;                                    
 uniform mat4 viewMatrix;                                           

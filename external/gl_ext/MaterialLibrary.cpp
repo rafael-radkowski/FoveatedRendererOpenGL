@@ -21,8 +21,6 @@ namespace ns_MaterialLibrary
 	int									glsl_texture_index_counter = 0; // keep the 10 first materials to be modified by a user. 
 	int									glsl_max_texture = 50;
 
-	int									glsl_texture_unit = 0;
-
 };
 
 using namespace cs557;
@@ -53,6 +51,7 @@ bool MaterialLibrary::AddMaterial(const Material material, int& materialIdx, con
 	library.push_back(material);
 	library.back().material_index = glsl_material_index_counter;
 	
+	// return the material index
 	materialIdx = library.size()-1;
 
 	// process the textures
@@ -130,50 +129,39 @@ the material from the right material slot.
 //static 
 bool MaterialLibrary::EnableMaterial(const int program, const int glsl_material_id)
 {
-	//glUseProgram(program);
-	//glUseProgram(program);
+	glUseProgram(program);
 	glUniform1i(glGetUniformLocation(program, "material_index" ), library[glsl_material_id].material_index);
-	//glUseProgram(program);
 
 	
 
+	// copy textures to gpu
+	library[glsl_material_id].texture.apply(program);
+
+/*
 	glUseProgram(program);
 
-	int tex_id = library[glsl_material_id].texture_id;
+	int tex_id = library[glsl_material_id].texture_Kd_id;
 	if ( tex_id != -1) {
 
 		glEnable(GL_TEXTURE_2D);
 		tex_library[tex_id].setActive(program);
-
-		//glUseProgram(program);
-
-		//// Activate the texture unit and bind the texture. 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, tex_library[tex_id].tex_id);
-		//
-		//// Fetch the texture location and set the parameter to 0.
-		//// Note that 0 is the number of the texture unit GL_TEXTURE0.
-		//int location = glGetUniformLocation(program, "tex[0].tex_kd");
-		//glUniform1i(location, 0);
-
-		//// set the texture to active. 
-		//int u = glGetUniformLocation(program, "tex[0].with_tex_kd");
-		//glUniform1i(u, 1);
-
-
-		//glUseProgram(program);
 	}
 	else
 	{
-		//int u = glGetUniformLocation(program, "tex[0].with_tex_kd");
-		//glUniform1i(u, 0);
-
-		//glDisable(GL_TEXTURE_2D);
+		// disable the texture
 		glBindTexture(GL_TEXTURE_2D, 0);
 		int mu = glGetUniformLocation(program, "texture_multiplier");
 		glUniform1f(mu, 0.0);
 	}
 
+
+	int tex_ka_id = library[glsl_material_id].texture_Ka_id;
+	if ( tex_ka_id != -1) {
+
+		glEnable(GL_TEXTURE_2D);
+		tex_library[tex_ka_id].setActive(program);
+	}
+	*/
 	return true;
 }
 
@@ -190,19 +178,17 @@ bool MaterialLibrary::CopyMaterialToGPU(const int program, const int material_id
 		return false;
 	}
 
+	// copy the material to gpu
 	library[material_id].apply(program);
 
 
-	//glUseProgram(program);
-	// set the texture to active. 
-	//int u = glGetUniformLocation(program, "tex[0].with_tex_kd");
-	//glUniform1i(u, 0);
-	//glUseProgram(program);
-
+	// copy textures to gpu
+	library[material_id].texture.apply(program);
+		
 
 	// activate textures if available
-	CopyTextureToGPU( program, library[material_id].texture_id);
-
+	//CopyTextureToGPU( program, library[material_id].texture_Kd_id);
+	
 
 	return true;
 }
@@ -221,6 +207,8 @@ bool MaterialLibrary::CopyTextureToGPU(const int program, const int texture_id)
 		glUseProgram(program);
 		// set the texture to active. 
 		int u = glGetUniformLocation(program, "tex[0].with_tex_kd");
+		glUniform1i(u, 0);
+		u = glGetUniformLocation(program, "tex[0].with_tex_ka");
 		glUniform1i(u, 0);
 		u = glGetUniformLocation(program, "texture_multiplier");
 		glUniform1f(u, 0.0);
@@ -262,8 +250,9 @@ bool MaterialLibrary::ProcessTextures(Material& material)
 	//-------------------------------------------------------------------------------------------------------
 	// diffuse texture
 	string tex_Kd = material.map_diffuse;
-
+	string tex_Ka = material.map_ambient;
 	
+	int texture_unit = 0;
 	
 	if (tex_Kd.length() > 0) {
 
@@ -271,11 +260,8 @@ bool MaterialLibrary::ProcessTextures(Material& material)
 
 		if(tex_id == -1){
 
-	
-			GLint max_tex[1];
-			glGetIntegerv(GL_MAX_TEXTURE_SIZE, max_tex);
-
-			cs557::Texture	tex;
+			cs557::Texture&	tex = material.texture.diff;
+			material.texture.with_tex_kd = true;
 
 			string tex_path;
 			tex_path.append(tex_Kd);
@@ -285,48 +271,81 @@ bool MaterialLibrary::ProcessTextures(Material& material)
 
 			// create the gl texture
 			//glUseProgram(program);
-			cs557::CreateTexture2D(tex.width, tex.height, tex.channels, tex.map, &tex.tex_id, GL_REPEAT, GL_TEXTURE0);
+			cs557::CreateTexture2D(tex.width, tex.height, tex.channels, tex.map, &tex.tex_id, GL_REPEAT, 0);
 
 			// Activate the texture unit and bind the texture. 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, tex.tex_id);
+			tex.tex_unit = GL_TEXTURE0;
 
 			tex.type = DIFFUSE;
 			tex.name = tex_Kd;
-			tex.texture_index = glsl_texture_index_counter;
-			glsl_texture_index_counter++;
 
-			tex.tex_unit = GL_TEXTURE0;
+			if(material.texture.texture_index == -1){
+				tex.texture_index = glsl_texture_index_counter;
+				material.texture.texture_index = glsl_texture_index_counter;
+				glsl_texture_index_counter++;
+			}
+
 			
-
-			cout << "bind texture " << tex_Kd << " to texture id " << tex.tex_id << ", material index " << tex.texture_index << endl;
-			glsl_texture_unit++;
-			/*
-			// Fetch the texture location and set the parameter to 0.
-			// Note that 0 is the number of the texture unit GL_TEXTURE0.
-			tex.diff.tex_loc = glGetUniformLocation(program, "tex[0].tex_kd");
-			glUniform1i(tex.diff.tex_loc, 0);
-
-			// set the texture to active. 
-			int u = glGetUniformLocation(program, "tex[0].with_tex_kd");
-			glUniform1i(u, 1);
-
-			glUseProgram(0);
-			*/
-
-
+			
 
 			// store the texture
 			tex_library.push_back(tex);
-			material.texture_id = tex_library.size() - 1;
+			material.texture_Kd_id = tex_library.size() - 1;
 
 		}else
 		{
-			material.texture_id = tex_id;
+			material.texture_Kd_id = tex_id;
+		}
+	} //if (tex_Kd.length() > 0) {
+
+
+
+
+	if (tex_Ka.length() > 0) {
+
+		int tex_id = SearchTex(tex_Ka);
+
+		if(tex_id == -1)
+		{
+			cs557::Texture&	tex = material.texture.ambi;
+			material.texture.with_tex_ka = true;
+
+			string tex_path;
+			tex_path.append(tex_Ka);
+
+			// Load the texture
+			TextureLoader::Load(tex_path, &tex.map, &tex.width, &tex.height, &tex.channels);
+
+			// create the gl texture
+			//glUseProgram(program);
+			cs557::CreateTexture2D(tex.width, tex.height, tex.channels, tex.map, &tex.tex_id, GL_REPEAT, 1);
+
+			// Activate the texture unit and bind the texture. 
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, tex.tex_id);
+
+			tex.type = AMBIENT;
+			tex.name = tex_Ka;
+			tex.tex_unit = GL_TEXTURE1;
+
+			if(material.texture.texture_index == -1){
+				tex.texture_index = glsl_texture_index_counter;
+				material.texture.texture_index = glsl_texture_index_counter;
+				glsl_texture_index_counter++;
+			}
+
+
+				// store the texture
+			tex_library.push_back(tex);
+			material.texture_Ka_id = tex_library.size() - 1;
+		
+		}else {
+			material.texture_Ka_id = tex_id;
 		}
 	}
-
-
+	
 	
 	return true;
 }

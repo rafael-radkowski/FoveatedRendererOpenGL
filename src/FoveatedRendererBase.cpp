@@ -211,11 +211,11 @@ bool FoveatedRendererBase::draw(glm::mat4 pm, glm::mat4 vm)
 	// deactivate the foveated renderer
 	glUseProgram(_fr_program);
 	glUniform1i(glGetUniformLocation(_fr_program, "with_fr"),_with_fr_shader_value);
-	glUseProgram(_fr_program);
+
 
 	// render all content
 	renderContent(pm, vm);
-
+	//glFlush();
 
     glUseProgram(0);
 

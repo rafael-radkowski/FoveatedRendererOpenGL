@@ -14,8 +14,18 @@ Create a 2D texture.
 bool cs557::CreateTexture2D(int width, int height, int channels, unsigned char* data, unsigned int* dst_texture_id,
      int mode, int texture_unit )
 {
+	GLenum tex_unit = GL_TEXTURE0;;
+	switch (texture_unit) {
+		case 0:
+		tex_unit = GL_TEXTURE0;
+		break;
+		case 1:
+		tex_unit = GL_TEXTURE1;
+		break;
+	}
+	cout << "assigning texture to " <<tex_unit << endl;
     // texture unity
-    glActiveTexture(texture_unit); //GL_TEXTURE0
+    glActiveTexture(tex_unit); //GL_TEXTURE0
 
      // Generate a texture, this function allocates the memory and
     // associates the texture with a variable.

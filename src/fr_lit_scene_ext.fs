@@ -1,6 +1,7 @@
 #version 410 core     
 #define MAX_LIGHTS 12
-#define MAX_MATERIAL 100
+#define MAX_MATERIAL 50
+#define MAX_TEXTURE 30
 
 uniform mat4 projectionMatrix;                                    
 uniform mat4 viewMatrix;                                           
@@ -43,17 +44,18 @@ uniform int material_index;
 uniform vec2 eye_pos;
 uniform vec2 screen_res;
 uniform float eye_radius;
-//uniform sampler2D buffer_pattern;
-//uniform sampler2D tex;
 uniform int with_fr; // to activate or deactivate foveated rendering
 
 
 uniform struct Texture {
 	sampler2D tex_kd;
 	int		  with_tex_kd;
-}tex[50];
+	sampler2D tex_ka;
+	int		  with_tex_ka;
+}tex[MAX_TEXTURE];
 
 uniform int texture_index;
+uniform int with_textures;
 uniform float texture_multiplier;
 
 out vec4 color;       
@@ -73,12 +75,26 @@ Note that all vectors need to be in camera/eye-space.
 @param s - the light source
 @param m - the material 
 */
-vec4 useLight(vec3 L, vec3 E, vec3 N, LightSource s, Material m)
+vec4 useLight(vec3 L, vec3 E, vec3 N, LightSource s, Material m, Texture t)
 {
 	vec4 color = vec4(0.0,0.0,0.0,0.0);
+	vec4 tex_color_kd = vec4(0.0, 0.0, 0.0, 0.0);
+	vec4 tex_color_ka = vec4(1.0, 1.0, 1.0, 1.0);
+	
+	
+	if(with_textures == 1){
+			if(t.with_tex_kd == 1)
+				tex_color_kd = texture(t.tex_kd, pass_Texture.xy);
+			if(t.with_tex_ka == 1){
+				tex_color_ka = texture(t.tex_ka, pass_Texture.xy);
+				tex_color_ka = tex_color_ka * tex_color_kd;
+				if(tex_color_ka.x == 0)discard;
+			}
+	}
+	
 
 	// diffuse light
-	vec3 Idiff =  m.diffInt * m.diffColor *  max(dot(L, N), 0.0); 
+	vec3 Idiff =  m.diffInt * m.diffColor * tex_color_kd.rgb *  max(dot(L, N), 0.0); 
 	Idiff = clamp(Idiff, 0.0, 1.0); 
 
 	// ambient light
@@ -153,17 +169,17 @@ void main(void)
 
 				// checks whether the light was set.
 				// Multiple lights blend adative
-				mixed += useLight( L,  E,  pass_Normal, light[i], mat[material_index]);
+				mixed += useLight( L,  E,  pass_Normal, light[i], mat[material_index], tex[texture_index]);
 				
 			}
 			
-			vec4 tex_color = vec4(0.0, 0.0, 0.0, 0.0);
-			if(tex[texture_index].with_tex_kd == 1){
-				tex_color = texture(tex[texture_index].tex_kd, pass_Texture.xy);
-			}
+			//vec4 tex_color = vec4(0.0, 0.0, 0.0, 0.0);
+			//if(tex[texture_index].with_tex_kd == 1){
+			//	tex_color = texture(tex[texture_index].tex_kd, pass_Texture.xy);
+			//}
 			
 		
-			color_add = (1.0-texture_multiplier) * mixed + texture_multiplier * tex_color + vec4(0.8,0.0,0.0,0.0);
+			color_add = mixed + vec4(0.8,0.0,0.0,0.0);
 		}
 
 	}else
@@ -183,18 +199,28 @@ void main(void)
 
 			// checks whether the light was set.
 			// Multiple lights blend adative
-			mixed += useLight( L,  E,  pass_Normal, light[i], mat[material_index]);
+			mixed += useLight( L,  E,  pass_Normal, light[i], mat[material_index], tex[texture_index]);
 				
 		}
 		
-		vec4 tex_color = vec4(0.0, 0.0, 0.0, 0.0);
-		if(tex[texture_index].with_tex_kd == 1){
-			tex_color = texture(tex[texture_index].tex_kd, pass_Texture.xy);
+	///	vec4 tex_color = vec4(0.0, 0.0, 0.0, 0.0);
+	//	vec4 tex_color_ka = vec4(1.0, 1.0, 1.0, 1.0);
+		
+	/*	
+		if(with_textures == 1){
+			if(tex[texture_index].with_tex_kd == 1)
+				tex_color = texture(tex[texture_index].tex_kd, pass_Texture.xy);
+			if(tex[texture_index].with_tex_ka == 1)
+				tex_color_ka = texture(tex[texture_index].tex_ka, pass_Texture.xy);
+				tex_color.a = tex_color_ka.r;
+			
 		}
 		
+		*/
 			
 		
-		color_add = (1.0-texture_multiplier) * mixed + texture_multiplier * tex_color;
+		color_add =  mixed ;
+		//color_add = (1.0-texture_multiplier) * mixed + texture_multiplier * tex_color  ;
 	}
 	
 	

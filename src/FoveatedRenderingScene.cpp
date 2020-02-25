@@ -79,22 +79,31 @@ void FoveatedRenderingScene::createLights(int num_lights)
 
 	//---------------------------------------------------------
     // Create a first light.
-    _lights[0].pos =  glm::vec3(0.0f, -3.0f, 3.0f);
+    _lights[0].pos =  glm::vec3(0.0f, 100.0f, 50.0f);
     _lights[0].dir =  glm::vec3(0.0f, 0.0f, 0.0f);
-    _lights[0].k1 = 0.1;
-
+    _lights[0].k1 = 0.2;
+	_lights[0].intensity = 2.0;
+	_lights[0].color = glm::vec3(1.0f, 1.0f, 1.0f);
 
     //---------------------------------------------------------
     // Create a second light. 
-    _lights[1].pos =  glm::vec3(0.0f, 3.0f, 3.0f);
+   // _lights[1].pos =  glm::vec3(0.0f, 3.0f, 3.0f);
+   // _lights[1].dir =  glm::vec3(0.0f, 0.0f, 0.0f);
+  //  _lights[1].color = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	_lights[1].pos =  glm::vec3(0.0f, -100.0f, 500.0f);
     _lights[1].dir =  glm::vec3(0.0f, 0.0f, 0.0f);
     _lights[1].color = glm::vec3(1.0f, 1.0f, 1.0f);
-
+	_lights[1].intensity = 2.0;
+	_lights[1].k1 = 0.2;
 
     //---------------------------------------------------------
     // Create a third light.
     // It is a spotlight in this case. 
-    _lights[2].pos =  glm::vec3(3.0f, 0.0f, 4.0f);
+    //_lights[2].pos =  glm::vec3(3.0f, 0.0f, 4.0f);
+   // _lights[2].dir =  glm::vec3(0.0f, 0.0f, 0.0f);
+    //_lights[2].color = glm::vec3(1.0f, 1.0f, 1.0f);
+	_lights[2].pos =  glm::vec3(30.0f, 0.0f, 40.0f);
     _lights[2].dir =  glm::vec3(0.0f, 0.0f, 0.0f);
     _lights[2].color = glm::vec3(1.0f, 1.0f, 1.0f);
 
