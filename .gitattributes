@@ -1,0 +1,2 @@
+*.obj filter=lfs diff=lfs merge=lfs -text
+models/BigCity4.obj filter=lfs diff=lfs merge=lfs -text
