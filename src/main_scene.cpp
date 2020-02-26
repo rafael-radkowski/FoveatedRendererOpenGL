@@ -245,7 +245,7 @@ void InitPark(void){
 	
 	  // Projection transformations
 	projectionMatrix = glm::perspective(1.57f, (float)frparams.window_height / (float)frparams.window_width, 0.1f, 2000.f);
-	viewMatrix = glm::lookAt(glm::vec3(1.0f, -100.0f, 150.f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	viewMatrix = glm::lookAt(glm::vec3(-200.0f, -200.0f, 90.f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
     // Init the GLFW Window
     window = cs557::initWindow(frparams.window_height, frparams.window_width);

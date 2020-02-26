@@ -258,13 +258,13 @@ typedef struct TexMaterial
 			// this material has no textures
 			if(checkName(shader_program_id, "texture_index" )) glUniform1i(glGetUniformLocation(shader_program_id, "texture_index" ), texture_index);
 			if(checkName(shader_program_id, "with_textures" )) glUniform1i(glGetUniformLocation(shader_program_id, "with_textures" ), 0);
-			if(checkName(shader_program_id, "texture_multiplier" )) glUniform1f(glGetUniformLocation(shader_program_id, "texture_multiplier" ), 0.0);
+			//if(checkName(shader_program_id, "texture_multiplier" )) glUniform1f(glGetUniformLocation(shader_program_id, "texture_multiplier" ), 0.0);
 			return; 
 		}
 
 		if(checkName(shader_program_id, "texture_index" )) glUniform1i(glGetUniformLocation(shader_program_id, "texture_index" ), texture_index);
 		if(checkName(shader_program_id, "with_textures" )) glUniform1i(glGetUniformLocation(shader_program_id, "with_textures" ), 1);
-		if(checkName(shader_program_id, "texture_multiplier" )) glUniform1f(glGetUniformLocation(shader_program_id, "texture_multiplier" ), texture_multiplier);
+		//if(checkName(shader_program_id, "texture_multiplier" )) glUniform1f(glGetUniformLocation(shader_program_id, "texture_multiplier" ), texture_multiplier);
 
 		
 		glEnable(GL_TEXTURE_2D);

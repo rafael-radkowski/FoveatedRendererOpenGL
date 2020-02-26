@@ -23,7 +23,7 @@ bool cs557::CreateTexture2D(int width, int height, int channels, unsigned char* 
 		tex_unit = GL_TEXTURE1;
 		break;
 	}
-	cout << "assigning texture to " <<tex_unit << endl;
+	
     // texture unity
     glActiveTexture(tex_unit); //GL_TEXTURE0
 
