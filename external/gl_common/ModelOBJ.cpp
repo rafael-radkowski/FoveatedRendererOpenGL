@@ -253,6 +253,7 @@ void cs557::OBJModel::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, glm
 	// Enable the shader program
 	glUseProgram(program);
 
+	glEnable(GL_BLEND);
 
 	// this changes the camera location
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]); // send the view matrix to our shader

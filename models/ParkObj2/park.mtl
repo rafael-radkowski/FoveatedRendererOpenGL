@@ -173,7 +173,7 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Kd treeha.jpg
-map_Ka treeHaop.jpg
+map_Ka treeHaop.png 
 
 newmtl treeHb
 Ns 1.960784

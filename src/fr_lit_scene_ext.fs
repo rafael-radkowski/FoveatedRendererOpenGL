@@ -65,6 +65,7 @@ bool with_per_vertex_color = true;
 bool with_smoothstep = true;
 bool with_brightlight = false;
 
+float gAlpha = 1.0;
 
 
 /*
@@ -80,14 +81,18 @@ vec4 useLight(vec3 L, vec3 E, vec3 N, LightSource s, Material m, Texture t)
 	vec4 color = vec4(0.0,0.0,0.0,0.0);
 	vec4 tex_color_kd = vec4(0.0, 0.0, 0.0, 0.0);
 	vec4 tex_color_ka = vec4(1.0, 1.0, 1.0, 1.0);
-	
+	float alpha = 0.0;
 	
 	if(with_textures == 1){
 			if(t.with_tex_kd == 1)
 				tex_color_kd = texture(t.tex_kd, pass_Texture.xy);
 			if(t.with_tex_ka == 1){
 				tex_color_ka = texture(t.tex_ka, pass_Texture.xy);
-				tex_color_ka = tex_color_ka * tex_color_kd;
+				//tex_color_kd.a = tex_color_ka.r;
+				//tex_color_kd = tex_color_ka;
+				//tex_color_kd.a = tex_color_ka.x;
+				//gAlpha = tex_color_ka.x;
+				//alpha = tex_color_ka.x;
 				if(tex_color_ka.x == 0)discard;
 			}
 	}
@@ -98,14 +103,14 @@ vec4 useLight(vec3 L, vec3 E, vec3 N, LightSource s, Material m, Texture t)
 	Idiff = clamp(Idiff, 0.0, 1.0); 
 
 	// ambient light
-	vec4 Iamb = vec4( m.ambColor, 1.0) * m.ambInt;
+	vec4 Iamb = vec4( m.ambColor, alpha) * m.ambInt;
 
 	// specular light
 	vec3 R = reflect(L, N);
 	vec3 Ispec =  m.specInt * m.specColor *  pow(max(dot(R, E), 0.0), m.shininess); 
 
 	// calculate color                                     
-	color = max(vec4( ( Idiff + Ispec) * s.color, 1.0), Iamb)  * s.intensity;  
+	color = max(vec4( ( Idiff + Ispec) * s.color, alpha), Iamb)  * s.intensity;  
 
 	// attenuation 
 	float dist = length(L);
@@ -220,10 +225,9 @@ void main(void)
 			
 		
 		color_add =  mixed ;
-		//color_add = (1.0-texture_multiplier) * mixed + texture_multiplier * tex_color  ;
 	}
 	
 	
-                                  
+   //color_add.a = gAlpha;        
 	color =  color_add;                         
 }                                                      

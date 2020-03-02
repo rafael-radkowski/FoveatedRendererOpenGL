@@ -259,6 +259,9 @@ void InitPark(void){
 
 	cs557::SetCameraSpeed(10.0, 10.0);
 
+	glEnable(GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+
     // Create the scene
     frrenderer  = new  FoveatedRenderingScene(frparams.window_height, frparams.window_width, frparams.tex_size, frparams.OSZoom);
 	frrenderer->loadEyeTrackingData(gaze_data_file);

@@ -252,6 +252,7 @@ typedef struct TexMaterial
     */
     inline void apply(int shader_program_id)
     {
+		
 		glUseProgram(shader_program_id );
 
 		if(texture_index == -1) {
@@ -276,8 +277,6 @@ typedef struct TexMaterial
         }
 
  		if( with_tex_ka){
-			glEnable(GL_BLEND);
-			glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); 
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, ambi.tex_id);
 			if(checkName(shader_program_id, getVariableName("tex", texture_index, "tex_ka") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "tex_ka").c_str()), 1);

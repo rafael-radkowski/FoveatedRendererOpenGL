@@ -1,6 +1,5 @@
 *.vcxproj
 *.filters
-*.txt
 *.sln
 cmake_install.cmake
 .vs/
@@ -15,3 +14,4 @@ src/FoveatedRendererOpenGL.dir/
 x64/
 src/FoveatedRendererOpenGL.vcxproj.user
 models/ParkObj/
+CMakeCache.txt
