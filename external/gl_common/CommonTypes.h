@@ -53,6 +53,30 @@ Feb 20, 2020, RR
 namespace cs557{
 
 
+typedef struct UniformLocations{
+		unsigned int material_index;
+		unsigned int diffColor;
+		unsigned int diffInt;
+		unsigned int ambColor;
+		unsigned int ambInt;
+		unsigned int specColor;
+		unsigned int specInt;
+		unsigned int shininess;
+
+		UniformLocations(){
+			
+			material_index = 0;
+			diffColor = 0;
+			diffInt = 0;
+			ambColor = 0;
+			ambInt = 0;
+			specColor = 0;
+			specInt = 0;
+			shininess = 0;
+
+		}
+
+}UniformLocations;
 
 
 
@@ -118,6 +142,13 @@ typedef struct Material
 	// gpu material struct. 
 	int		material_index;
 
+
+	UniformLocations loc;
+	
+	// mark whether the uniform locations are ready
+	bool uniformLocReady;
+
+
 	Material(){
 		//texture_id = -1;
 	
@@ -144,6 +175,7 @@ typedef struct Material
 		texture_Kd_id = -1;
 		texture_Ka_id = -1;
 		
+		uniformLocReady = false;
 	}
 
 
@@ -154,17 +186,21 @@ typedef struct Material
     */
     inline void setAllUniform(int program_id )
     {
+	
 		
         glUseProgram(program_id );
-		if(checkName(program_id, "material_index" )) glUniform1i(glGetUniformLocation(program_id, "material_index" ), material_index);
+		
+		if(!uniformLocReady)  getUniformLocations( program_id, "mat", material_index);
 
-        if(checkName(program_id, getVariableName("mat", material_index, "diffColor") )) glUniform3fv(glGetUniformLocation(program_id, getVariableName("mat", material_index, "diffColor").c_str() ), 1, &diffuse_mat[0]);
-        if(checkName(program_id, getVariableName("mat", material_index, "diffInt") )) glUniform1f(glGetUniformLocation(program_id, getVariableName("mat", material_index, "diffInt").c_str() ), diffuse_int);
-        if(checkName(program_id, getVariableName("mat", material_index, "ambColor") )) glUniform3fv(glGetUniformLocation(program_id,  getVariableName("mat", material_index, "ambColor").c_str() ), 1, &ambient_mat[0]);
-        if(checkName(program_id, getVariableName("mat", material_index, "ambInt") )) glUniform1f(glGetUniformLocation(program_id, getVariableName("mat", material_index, "ambInt").c_str() ), ambient_int);
-        if(checkName(program_id, getVariableName("mat", material_index, "specColor") )) glUniform3fv(glGetUniformLocation(program_id, getVariableName("mat", material_index, "specColor").c_str()), 1, &specular_mat[0]);
-        if(checkName(program_id, getVariableName("mat", material_index, "specInt") )) glUniform1f(glGetUniformLocation(program_id, getVariableName("mat", material_index, "specInt").c_str()), specular_int);
-        if(checkName(program_id, getVariableName("mat", material_index, "shininess") )) glUniform1f(glGetUniformLocation(program_id, getVariableName("mat", material_index, "shininess").c_str()), specular_s);
+		if(loc.material_index > 0) glUniform1i(loc.material_index, material_index);
+		if(loc.diffColor > 0) glUniform3fv(loc.diffColor, 1, &diffuse_mat[0]);
+		if(loc.diffInt > 0) glUniform1f(loc.diffInt, diffuse_int);
+		if(loc.ambColor > 0) glUniform3fv(loc.ambColor, 1, &ambient_mat[0]);
+		if(loc.ambInt > 0) glUniform1f(loc.ambInt, ambient_int);
+		if(loc.specColor > 0) glUniform3fv(loc.specColor, 1, &specular_mat[0]);
+		if(loc.specInt > 0) glUniform1f(loc.specInt, specular_int);
+		if(loc.shininess > 0) glUniform1f(loc.shininess, specular_s);
+
 
         glUseProgram(0);
     }
@@ -194,6 +230,16 @@ typedef struct Material
     }
 
 
+	inline bool enableMaterial(int program_id) {
+
+		if(loc.material_index > 0) {
+			glUniform1i(loc.material_index, material_index);
+			return true;
+		}
+		return false;
+	}
+
+
 	 /*
     Assemble a varibale name string from three components.
     */
@@ -206,6 +252,25 @@ typedef struct Material
         name.append(variable_name);
         return name;
     }
+
+
+	inline bool getUniformLocations(int program_id, std::string struct_name, int material_index) {
+
+
+		if(checkName(program_id, "material_index" ))  loc.material_index =  glGetUniformLocation(program_id, "material_index" );
+		if(checkName(program_id, getVariableName(struct_name, material_index, "diffColor") ))  loc.diffColor = glGetUniformLocation(program_id, getVariableName(struct_name, material_index, "diffColor").c_str()) ;
+        if(checkName(program_id, getVariableName(struct_name, material_index, "diffInt") ))  loc.diffInt = glGetUniformLocation(program_id, getVariableName(struct_name, material_index, "diffInt").c_str() );
+        if(checkName(program_id, getVariableName(struct_name, material_index, "ambColor") )) loc.ambColor = glGetUniformLocation(program_id,  getVariableName(struct_name, material_index, "ambColor").c_str() );
+        if(checkName(program_id, getVariableName(struct_name, material_index, "ambInt") )) loc.ambInt = glGetUniformLocation(program_id, getVariableName(struct_name, material_index, "ambInt").c_str() );
+        if(checkName(program_id, getVariableName(struct_name, material_index, "specColor") )) loc.specColor = glGetUniformLocation(program_id, getVariableName(struct_name, material_index, "specColor").c_str());
+        if(checkName(program_id, getVariableName(struct_name, material_index, "specInt") ))  loc.specInt = glGetUniformLocation(program_id, getVariableName(struct_name, material_index, "specInt").c_str());
+        if(checkName(program_id, getVariableName(struct_name, material_index, "shininess") ))  loc.shininess = glGetUniformLocation(program_id, getVariableName(struct_name, material_index, "shininess").c_str());
+
+		uniformLocReady = true;
+
+
+		return true;
+	}
 
 
 } Material;

@@ -40,6 +40,28 @@ typedef enum {
 }TextureType;
 
 
+typedef struct _GLSLTextureLoc
+{
+	int texture_index;
+	int with_textures;
+	int tex_kd;
+	int with_tex_kd;
+	int tex_ka;
+	int with_tex_ka;
+
+
+	_GLSLTextureLoc() {
+		texture_index = -1;
+		with_textures = -1;
+		tex_kd = -1;
+		with_tex_kd = -1;
+		tex_ka = -1;
+		with_tex_ka = -1;
+	}
+
+}GLSLTextureLoc;
+
+
 /*
 Datatype for a single textures.
 Stores all relevant texture data and meta data. 
@@ -143,7 +165,7 @@ typedef struct _Texture {
         if(checkName(shader_program_id, getVariableName("tex", texture_index, "with_tex_kd") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "with_tex_kd").c_str()), 1);
         if(checkName(shader_program_id, getVariableName("tex", texture_index, "tex_ka") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "tex_ka").c_str()), tex_unit);
         if(checkName(shader_program_id, getVariableName("tex", texture_index, "with_tex_ka") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "with_tex_ka").c_str()), 1);
-
+	
 		glUseProgram(0);
     }
 
@@ -230,6 +252,10 @@ typedef struct TexMaterial
 	bool	 with_error_check;
 
 
+	GLSLTextureLoc glsl_loc;
+	bool		   glsl_loc_ready;
+
+
 	TexMaterial() {
 		num_textures = 0;
 		error_count = 0;
@@ -242,6 +268,8 @@ typedef struct TexMaterial
 		with_tex_ks = false;
 		with_tex_kb = false;
 		with_tex_ke = false;
+
+		glsl_loc_ready = false;
 	}
 
 
@@ -255,32 +283,46 @@ typedef struct TexMaterial
 		
 		glUseProgram(shader_program_id );
 
+		if(!glsl_loc_ready) getUniformLocations(shader_program_id, "tex", texture_index);
+
+
 		if(texture_index == -1) {
 			// this material has no textures
-			if(checkName(shader_program_id, "texture_index" )) glUniform1i(glGetUniformLocation(shader_program_id, "texture_index" ), texture_index);
-			if(checkName(shader_program_id, "with_textures" )) glUniform1i(glGetUniformLocation(shader_program_id, "with_textures" ), 0);
+			//if(checkName(shader_program_id, "texture_index" )) glUniform1i(glGetUniformLocation(shader_program_id, "texture_index" ), texture_index);
+			//if(checkName(shader_program_id, "with_textures" )) glUniform1i(glGetUniformLocation(shader_program_id, "with_textures" ), 0);
 			//if(checkName(shader_program_id, "texture_multiplier" )) glUniform1f(glGetUniformLocation(shader_program_id, "texture_multiplier" ), 0.0);
+
+			if(glsl_loc.texture_index > 0) glUniform1i(glsl_loc.texture_index, texture_index);
+			if(glsl_loc.with_textures > 0) glUniform1i(glsl_loc.with_textures, 0);
+
 			return; 
 		}
 
-		if(checkName(shader_program_id, "texture_index" )) glUniform1i(glGetUniformLocation(shader_program_id, "texture_index" ), texture_index);
-		if(checkName(shader_program_id, "with_textures" )) glUniform1i(glGetUniformLocation(shader_program_id, "with_textures" ), 1);
+		//if(checkName(shader_program_id, "texture_index" )) glUniform1i(glGetUniformLocation(shader_program_id, "texture_index" ), texture_index);
+		//if(checkName(shader_program_id, "with_textures" )) glUniform1i(glGetUniformLocation(shader_program_id, "with_textures" ), 1);
 		//if(checkName(shader_program_id, "texture_multiplier" )) glUniform1f(glGetUniformLocation(shader_program_id, "texture_multiplier" ), texture_multiplier);
-
+		
+		if(glsl_loc.texture_index > 0) glUniform1i(glsl_loc.texture_index, texture_index);
+		if(glsl_loc.with_textures > 0) glUniform1i(glsl_loc.with_textures, 1);
 		
 		glEnable(GL_TEXTURE_2D);
 		if( with_tex_kd){
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, diff.tex_id);
-			if(checkName(shader_program_id, getVariableName("tex", texture_index, "tex_kd") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "tex_kd").c_str()), 0);
-			if(checkName(shader_program_id, getVariableName("tex", texture_index, "with_tex_kd") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "with_tex_kd").c_str()), 1);
-        }
+			//if(checkName(shader_program_id, getVariableName("tex", texture_index, "tex_kd") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "tex_kd").c_str()), 0);
+			//if(checkName(shader_program_id, getVariableName("tex", texture_index, "with_tex_kd") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "with_tex_kd").c_str()), 1);
+        
+			if(glsl_loc.tex_kd > 0 )glUniform1i(glsl_loc.tex_kd , 0);
+			if(glsl_loc.with_tex_kd > 0 )glUniform1i(glsl_loc.with_tex_kd , 1);
+		}
 
  		if( with_tex_ka){
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, ambi.tex_id);
-			if(checkName(shader_program_id, getVariableName("tex", texture_index, "tex_ka") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "tex_ka").c_str()), 1);
-			if(checkName(shader_program_id, getVariableName("tex", texture_index, "with_tex_ka") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "with_tex_ka").c_str()), 1);
+			//if(checkName(shader_program_id, getVariableName("tex", texture_index, "tex_ka") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "tex_ka").c_str()), 1);
+			//if(checkName(shader_program_id, getVariableName("tex", texture_index, "with_tex_ka") )) glUniform1i(glGetUniformLocation(shader_program_id , getVariableName("tex", texture_index, "with_tex_ka").c_str()), 1);
+			if(glsl_loc.tex_ka > 0 )glUniform1i(glsl_loc.tex_ka , 1);
+			if(glsl_loc.with_tex_ka > 0 )glUniform1i(glsl_loc.with_tex_ka , 1);
 		}
 
       /*  glUseProgram(shader_program_id );
@@ -288,7 +330,7 @@ typedef struct TexMaterial
 			diff.tex_loc = glGetUniformLocation(shader_program_id, "tex_kd");
 			glUniform1i(diff.tex_loc, 0);
 		}*/
-		glUseProgram(shader_program_id );
+		//glUseProgram(shader_program_id );
      
         glUseProgram(0);
     }
@@ -324,6 +366,26 @@ typedef struct TexMaterial
         name.append(variable_name);
         return name;
     }
+
+
+	inline bool getUniformLocations(int program, std::string lib_name, int texture_idx) {
+
+		if(checkName(program, "texture_index" )) glsl_loc.texture_index = glGetUniformLocation(program, "texture_index" );
+		if(checkName(program, "with_textures" )) glsl_loc.with_textures = glGetUniformLocation(program, "with_textures" );
+
+		if(texture_index == -1)  return false;
+
+		if(checkName(program, getVariableName(lib_name, texture_idx, "tex_kd") )) glsl_loc.tex_kd = glGetUniformLocation(program , getVariableName(lib_name, texture_idx, "tex_kd").c_str());
+		if(checkName(program, getVariableName(lib_name, texture_idx, "with_tex_kd") )) glsl_loc.with_tex_kd =  glGetUniformLocation(program , getVariableName(lib_name, texture_idx, "with_tex_kd").c_str());
+
+		if(checkName(program, getVariableName(lib_name, texture_idx, "tex_ka")) ) glsl_loc.tex_ka = glGetUniformLocation(program , getVariableName(lib_name, texture_idx, "tex_ka").c_str());
+		if(checkName(program, getVariableName(lib_name, texture_idx, "with_tex_ka") )) glsl_loc.with_tex_ka = glGetUniformLocation(program , getVariableName(lib_name, texture_idx, "with_tex_ka").c_str());
+		
+
+
+		glsl_loc_ready = true;
+		return true;
+	}
 
 
 }TexMaterial;

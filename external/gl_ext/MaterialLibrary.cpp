@@ -130,8 +130,8 @@ the material from the right material slot.
 bool MaterialLibrary::EnableMaterial(const int program, const int glsl_material_id)
 {
 	glUseProgram(program);
-	glUniform1i(glGetUniformLocation(program, "material_index" ), library[glsl_material_id].material_index);
-
+	//glUniform1i(glGetUniformLocation(program, "material_index" ), library[glsl_material_id].material_index);
+	library[glsl_material_id].enableMaterial(program);
 	
 
 	// copy textures to gpu
