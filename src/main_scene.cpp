@@ -488,8 +488,8 @@ int main(int argc,  char **argv)
 
 
 	// Init the scene 
-    //InitScene();
-	InitPark();
+    InitScene();
+	//InitPark();
 	//InitTest();
 
 	// start drawing

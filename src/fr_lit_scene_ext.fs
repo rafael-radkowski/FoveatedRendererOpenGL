@@ -99,7 +99,12 @@ vec4 useLight(vec3 L, vec3 E, vec3 N, LightSource s, Material m, Texture t)
 	
 
 	// diffuse light
-	vec3 Idiff =  m.diffInt * m.diffColor * tex_color_kd.rgb *  max(dot(L, N), 0.0); 
+	//vec3 Idiff =  m.diffInt * m.diffColor * tex_color_kd.rgb *  max(dot(L, N), 0.0); 
+	vec3 Idiff = vec3(1.0,0.0,0.0);
+	if(t.with_tex_kd == 1)
+		Idiff =  m.diffInt * m.diffColor * tex_color_kd.rgb *  max(dot(L, N), 0.0); 
+	else
+		Idiff =  m.diffInt * m.diffColor * max(dot(L, N), 0.0); 
 	Idiff = clamp(Idiff, 0.0, 1.0); 
 
 	// ambient light
