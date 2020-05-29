@@ -50,7 +50,8 @@ def run_test(output_folder):
 	print("log_path  %s " % log_path)
 
 	try:
-		os.mkdir(log_path)
+		if not os.path.exists(log_path):
+			os.makedirs(log_path)
 	except OSError:
 		print("Creation of the directory %s failed" % log_path)
 	else:

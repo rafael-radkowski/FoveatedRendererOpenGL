@@ -23,6 +23,7 @@ typedef struct _Arguments
 	bool WITH_FR;
 	int	 end_cout;
 	int row_spheres;
+	int num_lights;
 
 	string output_file;
 	string current_path;
@@ -41,7 +42,8 @@ typedef struct _Arguments
 		output_file = "data.csv";
 		tex_size = 128;
 		row_spheres = 3;
-	
+		num_lights = 3;
+
 		eye_radius = 0.1;
 		end_cout = -1;
 		WITH_FR = false;
