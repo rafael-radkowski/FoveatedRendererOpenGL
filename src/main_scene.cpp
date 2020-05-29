@@ -82,7 +82,6 @@ typedef struct FRParams
 	bool with_fr;
 	int max_iterations; // -1 for infinite
 	int row_spheres;
-	int num_lights;
 	string output_file; 
 
 
@@ -95,7 +94,6 @@ typedef struct FRParams
 		with_fr  = false;
 		max_iterations = -1;
 		row_spheres = 3;
-		num_lights = 3;
 		output_file = "data.csv";
 	}
 
@@ -209,7 +207,7 @@ void InitScene(void)
 	frrenderer->loadEyeTrackingData(gaze_data_file);
 	frrenderer->setEyeRadius(frparams.eye_radius);
 	frrenderer->setObjectsToLoad(object_to_load, object_transformation);
-	frrenderer->createContent(frparams.num_lights, true);
+	frrenderer->createContent();
 	frrenderer->enableFR(frparams.with_fr);
 
 	if(frparams.row_spheres == 1)
@@ -269,7 +267,7 @@ void InitPark(void){
 	frrenderer->loadEyeTrackingData(gaze_data_file);
 	frrenderer->setEyeRadius(frparams.eye_radius);
 	frrenderer->setObjectsToLoad(object_park, object_park_transformation);
-	frrenderer->createContent(frparams.num_lights, false);
+	frrenderer->createContent(false);
 	frrenderer->enableFR(frparams.with_fr);
 
 
@@ -328,7 +326,7 @@ void InitTest(void){
 	frrenderer->loadEyeTrackingData(gaze_data_file);
 	frrenderer->setEyeRadius(frparams.eye_radius);
 	frrenderer->setObjectsToLoad(object_to_load2, object_transformation2);
-	frrenderer->createContent(frparams.num_lights, true);
+	frrenderer->createContent();
 	frrenderer->enableFR(frparams.with_fr);
 
 
@@ -446,7 +444,7 @@ int main(int argc,  char **argv)
     cout << "Foveated rendering test app." << endl;
     cout << "Rafael Radkowski\nrafael@iastate.edu\nIowa State University\n" << endl;
   
-    cout << "Example arguments: -w 1024 -h 1024 -tex 256 -eye 0.1 -fr -o ./data/test1.csv -end 5000 -num 3 -light 3" << endl;
+    cout << "Example arguments: -w 1024 -h 1024 -tex 256 -eye 0.1 -fr -o ./data/test1.csv -end 5000 -num 3" << endl;
 
 
 
@@ -462,7 +460,6 @@ int main(int argc,  char **argv)
 	frparams.output_file = arg.output_file;
 	frparams.max_iterations = arg.end_cout;
 	frparams.row_spheres = arg.row_spheres;
-	frparams.num_lights = arg.num_lights;
 
 	//Change output file name
 	int idx = frparams.output_file.find_last_of(".");
@@ -482,7 +479,6 @@ int main(int argc,  char **argv)
 	fout << "tex_size," << frparams.tex_size <<"\n";
 	fout << "FReye_radius," << frparams.eye_radius << "\n";
 	fout << "row_spheres," << frparams.row_spheres << "\n";
-	fout << "num_lights," << frparams.num_lights << "\n\n";
 	fout << "max_iterations," << frparams.max_iterations << "\n\n";
 	fout.close();
 

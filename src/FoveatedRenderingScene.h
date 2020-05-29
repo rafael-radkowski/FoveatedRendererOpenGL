@@ -29,7 +29,7 @@ public:
 
 	/*
 	*/
-	bool createContent(int num_lights, bool default_plane = true);
+	bool createContent(bool default_plane = true);
 
 
 	bool setObjectsToLoad(std::vector<std::string>& loading_list, std::vector<glm::vec3>& position);

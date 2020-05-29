@@ -65,16 +65,12 @@ Arguments ArgParser::Parse(int& argc, char** argv)
 			if (argc >= pos) opt.output_file =   string(argv[pos+1]).c_str() ;
 			else ParamError(c_arg);
 		}
-		else if(c_arg.compare("-tex") == 0){ // size of low resolution texture
+		else if(c_arg.compare("-tex") == 0){ // window width 
 			if (argc >= pos) opt.tex_size = atoi( string(argv[pos+1]).c_str() );
 			else ParamError(c_arg);
 		}
-		else if(c_arg.compare("-num") == 0){ // number of objects
+		else if(c_arg.compare("-num") == 0){ // window width 
 			if (argc >= pos) opt.row_spheres = atoi( string(argv[pos+1]).c_str() );
-			else ParamError(c_arg);
-		}
-		else if (c_arg.compare("-light") == 0) { // number of lights 
-			if (argc >= pos) opt.num_lights = atoi(string(argv[pos + 1]).c_str());
 			else ParamError(c_arg);
 		}
 		else if(c_arg.compare("-fr") == 0 || c_arg.compare("-h") == 0){ // help
@@ -152,8 +148,7 @@ void ArgParser::Display(void)
 	std::cout << "Window height:\t" << opt.window_width << endl;
 	std::cout << "Texture width:\t" << opt.tex_size << endl;
 	std::cout << "Texture height:\t" << opt.tex_size << endl;
-	std::cout << "Eye radius: \t" << opt.eye_radius << endl; 
-	std::cout << "Number of Lights: \t" << opt.num_lights << endl;
+	std::cout << "Eye radius: \t" << opt.eye_radius << endl;
 	std::cout << "End at:\t" << opt.end_cout << endl;
 
 }

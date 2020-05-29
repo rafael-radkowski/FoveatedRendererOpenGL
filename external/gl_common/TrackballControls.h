@@ -18,7 +18,7 @@
 
 #include "ControlsBase.h"
 
-//using namespace glm;
+using namespace glm;
 using namespace std;
 
 

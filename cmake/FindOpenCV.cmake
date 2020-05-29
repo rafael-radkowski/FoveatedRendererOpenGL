@@ -81,13 +81,13 @@ endif ()
 # Extract the version from a version file. 
 
 # OpenCV Version 3 support
-find_file(__find_version "version.hpp"  PATHS  "${OpenCV_DIR}/sources/modules/core/include/opencv2/core" )
+find_file(__find_version "version.hpp"  PATHS  "${OpenCV_DIR}/modules/core/include/opencv2/core/" )
 
 # just for debug.
-message("opencv version: " ,  ${__find_version})
+# message( ${__find_version})
 
 if(__find_version)
-	SET(OPENCV_VERSION_FILE ${__find_version})
+	SET(OPENCV_VERSION_FILE "${OpenCV_DIR}/modules/core/include/opencv2/core/version.hpp")
 	file(STRINGS "${OPENCV_VERSION_FILE}" OPENCV_VERSION_PARTS REGEX "#define CV_VERSION_[A-Z]+[ ]+" )
 
 	string(REGEX REPLACE ".+CV_VERSION_MAJOR[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_MAJOR "${OPENCV_VERSION_PARTS}")
@@ -99,42 +99,36 @@ if(__find_version)
 	set(OPENCV_VERSION "${OPENCV_VERSION_PLAIN}${OPENCV_VERSION_STATUS}")
 	set(OPENCV_SOVERSION "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}")
 	set(OPENCV_LIBVERSION "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}.${OPENCV_VERSION_PATCH}")
-	set(OpenCV_VERSION "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}.${OPENCV_VERSION_PATCH}")
+	set(OpenCV_VERSION "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}.${OPENCV_VERSION_PATCH}" CACHE PATH "Install version")
 	set(OpenCV_LIBVERSION "${OPENCV_VERSION_MAJOR}${OPENCV_VERSION_MINOR}${OPENCV_VERSION_PATCH}")
 
 	mark_as_advanced(OpenCV_VERSION)
-	message(STATUS "[FindOpenCV] - Found OpenCV at " ${OpenCV_DIR} ", Version "  ${OpenCV_VERSION}, "OPENCV_VERSION_MAJOR "  ${OPENCV_VERSION_MAJOR})
-endif()
-#unset(__find_version CACHE)
-
-message("cvversion  ${__find_version}")
-
-if(NOT  EXISTS ${__find_version}) 
-	# OpenCV Version 2 support
-	find_file(__find_version "version.hpp"  PATHS  "${OpenCV_DIR}/sources/modules/core/include/opencv2/core/"  )
-	if(__find_version)
-		SET(OPENCV_VERSION_FILE ${__find_version})
-		file(STRINGS "${OPENCV_VERSION_FILE}" OPENCV_VERSION_PARTS REGEX "#define CV_VERSION_[A-Z]+[ ]+" )
-		message("TEST")
-		string(REGEX REPLACE ".+CV_VERSION_EPOCH[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_MAJOR "${OPENCV_VERSION_PARTS}")
-		string(REGEX REPLACE ".+CV_VERSION_MAJOR[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_MINOR "${OPENCV_VERSION_PARTS}")
-		string(REGEX REPLACE ".+CV_VERSION_MINOR[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_PATCH "${OPENCV_VERSION_PARTS}")
-		
-		set(OPENCV_VERSION_PLAIN "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}.${OPENCV_VERSION_PATCH}")
-		set(OPENCV_VERSION "${OPENCV_VERSION_PLAIN}${OPENCV_VERSION_STATUS}")
-		set(OPENCV_SOVERSION "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}")
-		set(OPENCV_LIBVERSION "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}.${OPENCV_VERSION_PATCH}")
-		set(OpenCV_VERSION "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}.${OPENCV_VERSION_PATCH}")
-		set(OpenCV_LIBVERSION "${OPENCV_VERSION_MAJOR}${OPENCV_VERSION_MINOR}${OPENCV_VERSION_PATCH}")
-
-
-		mark_as_advanced(OpenCV_VERSION)
-		message(STATUS "[FindOpenCV] - Found OpenCV at " ${OpenCV_DIR} ", Version "  ${OpenCV_VERSION}, "OPENCV_VERSION_MAJOR "  ${OPENCV_VERSION_MAJOR})
-	endif()
+	message(STATUS "[FindOpenCV] - Found OpenCV at " ${OpenCV_DIR} ", Version "  ${OpenCV_VERSION})
 endif()
 unset(__find_version CACHE)
 
-message("cvversion dit  ${OpenCV_DIR}")
+# OpenCV Version 2 support
+find_file(__find_version "version.hpp"  PATHS  "${OpenCV_DIR}/sources/modules/core/include/opencv2/core/"  )
+if(__find_version)
+	SET(OPENCV_VERSION_FILE "${OpenCV_DIR}/sources/modules/core/include/opencv2/core/version.hpp")
+	file(STRINGS "${OPENCV_VERSION_FILE}" OPENCV_VERSION_PARTS REGEX "#define CV_VERSION_[A-Z]+[ ]+" )
+
+	string(REGEX REPLACE ".+CV_VERSION_EPOCH[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_MAJOR "${OPENCV_VERSION_PARTS}")
+	string(REGEX REPLACE ".+CV_VERSION_MAJOR[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_MINOR "${OPENCV_VERSION_PARTS}")
+	string(REGEX REPLACE ".+CV_VERSION_MINOR[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_PATCH "${OPENCV_VERSION_PARTS}")
+	
+	set(OPENCV_VERSION_PLAIN "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}.${OPENCV_VERSION_PATCH}")
+	set(OPENCV_VERSION "${OPENCV_VERSION_PLAIN}${OPENCV_VERSION_STATUS}")
+	set(OPENCV_SOVERSION "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}")
+	set(OPENCV_LIBVERSION "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}.${OPENCV_VERSION_PATCH}")
+	set(OpenCV_VERSION "${OPENCV_VERSION_MAJOR}.${OPENCV_VERSION_MINOR}.${OPENCV_VERSION_PATCH}" CACHE PATH "Install version")
+	set(OpenCV_LIBVERSION "${OPENCV_VERSION_MAJOR}${OPENCV_VERSION_MINOR}${OPENCV_VERSION_PATCH}")
+
+
+	mark_as_advanced(OpenCV_VERSION)
+	message(STATUS "[FindOpenCV] - Found OpenCV at " ${OpenCV_DIR} ", Version "  ${OpenCV_VERSION})
+endif()
+unset(__find_version CACHE)
 
 # ----------------------------------------------------------------------------
 # Find the include directory
@@ -150,8 +144,8 @@ find_path (
   DOC "Directory of core.h header file."
   NO_DEFAULT_PATH
 )
-message("Include dir ${OpenCV_INCLUDE_DIR}")#
-#mark_as_advanced(OpenCV_INCLUDE_DIR)
+
+mark_as_advanced(OpenCV_INCLUDE_DIR)
 
 
 
@@ -165,8 +159,6 @@ set(__LIBRARY_DIRS
 	${OpenCV_DIR}/builds/lib/Debug
 	${OpenCV_DIR}/build/lib/Release
 	${OpenCV_DIR}/build/lib/Debug
-	${OpenCV_DIR}/build/x64/vc14/lib
-	${OpenCV_DIR}/build/x64/vc14/lib
 )
 
 
@@ -234,10 +226,9 @@ endif()
 ##------------------------------------------
 ## Get the libraries
 
-message(STATUS "Look for OpenCV version " ${OpenCV_VERSION}, " or " ${OPENCV_VERSION_MAJOR})
 
-if(${OPENCV_VERSION_MAJOR} EQUAL 3)
-	message(STATUS "Found OpenCV version " ${OpenCV_VERSION})
+if(${OPENCV_VERSION_MAJOR} EQUAL "3")
+
 	##------------------------------------------
 	## Release libraries
 	if ( OpenCV_LIBRARY_DIR)
